@@ -1,0 +1,36 @@
+html_validation:
+  stage: test
+  image: node
+  before_script:
+    - npm install --save-dev html-validate
+  script:
+    - npm exec html-validate templates/**/*.html
+  allow_failure: false
+
+css_validation:
+  stage: test
+  image: node
+  before_script:
+    - npm install --save-dev -g stylelint
+    - npm add -D stylelint stylelint-config-standard
+  script:
+    - npm exec stylelint 'static/**/*.css'
+  allow_failure: false
+
+eslint:
+  stage: test
+  image: node
+  before_script:
+    - npm install -g eslint
+  script:
+    - npx eslint static/**/*.js
+  allow_failure: false
+
+flake8:
+  stage: test
+  image: python:latest
+  before_script:
+    - pip install flake8
+  script:
+    - flake8 app.py
+  allow_failure: false
