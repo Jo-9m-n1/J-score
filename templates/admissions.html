@@ -1,0 +1,40 @@
+{% extends "layout.html" %}
+
+
+{% block body %}
+<main>
+    <form action="{{ url_for('result_ad') }}" method="post">
+        <section class="q1"> 
+            <h2>Your dream university</h2>
+                <p>
+                    <label for="q1">Answer:</label>
+                    <input type="text" id="q1" name="university" required>
+                
+                </p>
+        </section>
+        <section class="q2">
+            <h2>Your dream major in that university</h2>
+                <p>
+                    <label for="q2">Answer:</label>
+                    <input type="text" id="q2" name="major" required>
+                </p>
+        </section>
+        <section class="q3">
+            <h2>Last year's R-score cutoff</h2>
+                <p>
+                    <label for="q3">Answer:</label>
+                    <input type="number" id="q3" name="r_score" step="any" required>
+                </p>
+        </section>
+        <section class="q4">
+            <h2>Your global r-score</h2>
+                <p>
+                    <label for="q4">Answer:</label>
+                    <input type="number" id="q4" name="user_grade" step="any" required>
+                </p>
+        </section>
+        <button type="submit">Submit</button>
+    </form>
+</main>
+
+{% endblock %}
