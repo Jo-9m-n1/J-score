@@ -31,6 +31,7 @@ Cegep students
 https://www.scribbr.com/wp-content/uploads/2023/02/standard-normal-distribution-example.webp
 
 #### Link to design image
+https://gitlab.com/dawson-scsm-cohort-2026/sf3-pdge/project/james-jongmin/final-project/-/blob/main/documentation/designs/Screenshot_2025-10-31_131831.png
 TO INCLUDE:
 - header that works for all pages
 - nav that hyperlinks between homepage and content pages
