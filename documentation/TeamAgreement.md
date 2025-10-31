@@ -1,30 +1,30 @@
 # Team Agreement for TEAM NAME
 
+J-Score
+
 ## Team Contract
 
 ### Communication expectations
 
 **Platform** (examples: MIO, Dawson email, Discord):
+Discord & Instagram
 **Expected response time** (examples within 24hrs, check twice a day, by same evening):
+Within 24 hours
 
 ### Availability to work together
 
-**At least 3hr during the week we dedicate to the project**
-- Timeblock 1: 
-- Timeblock 2:
-- etc.
+- Timeblock 1: Tuesday 11:30 - 14:00
+- Timeblock 2: Friday 14:30 - 16:00
+- Any other availability can be confirmed through commmunication
 
 ### Statement on academic integrity
 
-Our statement, in our own words, that confirms the actions we will take to avoid plagiarism for code and content (including tools that generate code) while working on the project:
+We, as James Combista and Jongmin Lee, will conform to the plagarism rules and will avoid using any type of artifical intelligent generated code.
 
 ### Commitment to work on project equitably 
 
-Our commitment to make space (i.e., don't do all the work) and take space (i.e., don't sit back and do nothing) to develop our skills in all areas of the project (planning, coding HTML, CSS, JS, Python/Flask, testing, etc.): 
-
-_Please write these individually, based on what you're working on as a pair programmer and teammate_
-
-I, -NAME-, commit to 
+I, Jongmin, commit to working together by dividing the work equally with James to finish all the work given.
+I, James, commit to working with Jongmin by communicating my concerns and to do the work by the deadlines set. 
 
 ## Conflict resolution
 
