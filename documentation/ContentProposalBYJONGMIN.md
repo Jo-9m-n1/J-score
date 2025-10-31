@@ -1,6 +1,8 @@
-# Content Page by NAME
+# Content Page by Jongmin
+Admissions probability calculator
 
 ## Subtopic: TITLE
+Admissions probability calculator
 
 ### Text and media in the main content area
 
