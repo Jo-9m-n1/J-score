@@ -9,14 +9,14 @@ Normal distribution in statistics
 Cegep students
 
 ### CSS theme
- Drop-in Minimal CSS (New CSS) [https://dohliam.github.io/dropin-minimal-css/](https://dohliam.github.io/dropin-minimal-css/)
+ Drop-in Minimal CSS: [New CSS](https://github.com/xz/new.css)
 
 ### Fonts
 - Corresponding generic font-family: Parkinsans [Google Fonts](https://fonts.google.com/specimen/Parkinsans)
 - Which element(s) it will be applied to: Body
 
 ## Website Content
-- R-score calculation with an inputed grades for the Cegap students who are concerned about their R-score.
+- R-score calculation with an inputed grades for the Cegep students who are concerned about their R-score.
 - Calcuating the user's probability of getting into their dream universtiy major by their current r-score and the major's cut-off.
 - Z-score and R-score explanation to help Cegap students learn about the r-score.
 
