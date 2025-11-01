@@ -7,6 +7,10 @@ app = Flask(__name__)
 def index():
     return render_template("index.html")
 
+@app.route("/r_score")
+def r_score():
+    return render_template("r_score.html")
+
 @app.route("/admissions")
 def admissions():
     return render_template("admissions.html")
@@ -18,7 +22,7 @@ def result_ad():
         major = request.form.get("major")
         user_grade = float(request.form.get("user_grade"))
         cut_off = float(request.form.get("r_score"))
-        Z = (user_grade - (cut_off - 0.05)) / 0.7
+        Z = (user_grade - (cut_off - 0.025)) / 0.75
         cdf = (0.5 * (1 + math.erf(Z / math.sqrt(2))))*100
         chance = round(cdf, 2)
     
@@ -29,5 +33,9 @@ def result_ad():
                                 user_grade=user_grade, 
                                 cut_off=cut_off)
     
-    except ValueError:
+    except:
         return render_template("error_ad.html")
+    
+@app.route("/explanation")
+def explanation():
+    return render_template("explanation.html")
