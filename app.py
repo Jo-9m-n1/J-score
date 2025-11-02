@@ -39,3 +39,7 @@ def result_ad():
 @app.route("/explanation")
 def explanation():
     return render_template("explanation.html")
+
+@app.route("/result", methods=["POST"])
+def result():
+    return render_template("result.html")
