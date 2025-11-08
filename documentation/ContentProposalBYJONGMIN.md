@@ -1,13 +1,29 @@
 # Content Page by Jongmin
-Admissions probability calculator
 
-## Subtopic: TITLE
-Admissions probability calculator
+## Subtopic: Understanding Normal Distribution, Standard Deviation and Z-Scores
 
 ### Text and media in the main content area
 
 <h1>Understanding Normal Distribution, Standard Deviation and Z-Scores</h1>
-<h2>Normal distriubtion</h2>
+<h2>Normal distribution</h2>
+<p>In statistics, "normal distribution" is often called the "bell curve"</p>
+<img alt="Image of a normal distribution graph">
+<h2>Standard Deviation</h2>
+<p>
+    The standard deviation is the most common measure of data variability. A small
+    standard deviation means that the data points are clustered near the mean, 
+    showing a low variability. A large standard deviation means that the data is widely 
+    spread out. The empricial rule states that 68% of all data falls within a standard 
+    deviation of the mean.
+</p>
+# Content Page by Jongmin
+
+## Subtopic: Understanding Normal Distribution, Standard Deviation and Z-Scores
+
+### Text and media in the main content area
+
+<h1>Understanding Normal Distribution, Standard Deviation and Z-Scores</h1>
+<h2>Normal distribution</h2>
 <p>In statistics, "normal distribution" is often called the "bell curve"</p>
 <img alt="Image of a normal distribution graph">
 <h2>Standard Deviation</h2>
@@ -39,12 +55,13 @@ Admissions probability calculator
     to a percnetile on the standard cure, providing you with a statistically approximated
     probability.
 </p>
+
 #### Citations for above text/media
 
 - This image is from <a href="https://mathbitsnotebook.com/Algebra2/Statistics/STzScores.html">source</a>, 
-used under fair dealing for educational purposes
+  used under fair dealing for educational purposes
 - This image is from <a href="https://www.standarddeviationcalculator.io/storage/2023/May/Zscore_39.png">source</a>,
-used under fair dealing for educational purposes
+  used under fair dealing for educational purposes
 
 #### Custom CSS
 
@@ -63,10 +80,8 @@ body {
 }
 
 ### Link to design image
+![Design mockup](designs/contentproposaldesign.png)
 
-TO INCLUDE:
-- header that matches homepage
-- nav that matches homepage and other content pages
 <header>
     <h1>
             <a href="{{ url_for('index')}}">J-score*</a>
