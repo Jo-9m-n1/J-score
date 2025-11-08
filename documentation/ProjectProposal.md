@@ -9,7 +9,7 @@ Normal distribution in statistics
 Cegep students
 
 ### CSS theme
- Drop-in Minimal CSS: [New CSS](https://github.com/xz/new.css)
+ Drop-in Minimal CSS: [New CSS](https://github.com/xz/new.css) using the font-family: sans-serif
 
 ### Fonts
 - Corresponding generic font-family: Parkinsans [Google Fonts](https://fonts.google.com/specimen/Parkinsans)
@@ -28,10 +28,12 @@ Cegep students
 - Generalized explanation of normal distribution and the r-score.
 
 ##### Citations for above text/media
-https://www.scribbr.com/wp-content/uploads/2023/02/standard-normal-distribution-example.webp
+https://upload.wikimedia.org/wikipedia/commons/thumb/0/03/Gauss_dichtefunktion.svg/1920px-Gauss_dichtefunktion.svg.png
+By StefanPohl - Own work, CC0, https://commons.wikimedia.org/w/index.php?curid=31516368 (public domain)
 
 #### Link to design image
-https://gitlab.com/dawson-scsm-cohort-2026/sf3-pdge/project/james-jongmin/final-project/-/blob/main/documentation/designs/Screenshot_2025-10-31_131831.png
+[Design Image](designs/initialcontentpage.png)
+
 TO INCLUDE:
 - header that works for all pages
 - nav that hyperlinks between homepage and content pages

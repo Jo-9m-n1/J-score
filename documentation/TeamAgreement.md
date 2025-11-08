@@ -24,7 +24,7 @@ We, as James Combista and Jongmin Lee, will conform to the plagarism rules and w
 ### Commitment to work on project equitably 
 
 I, Jongmin, commit to working together by dividing the work equally with James to finish all the work given.
-I, James, commit to working with Jongmin by communicating my concerns and to do the work by the deadlines set. 
+I, James, commit to working with Jongmin by communicating my concerns and to do the work by the deadlines set. When consulting external code or online content, we will make sure to use it only for learning or reference and to not copy it directly into our project. We will cite the original source in the footer if we use text from other websites.
 
 ## Conflict resolution
 

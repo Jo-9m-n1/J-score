@@ -73,4 +73,4 @@ The <i>IFGZ</i> and <i>IDGZ</i> are the <b>only</b> constants that are difficult
   display:flex; gap:12px;
 }
 
-### [Link to design image](https://excalidraw.com/#json=KLhv1zN6_Fh1ZsKqFRqVJ,IJ3pYYnnN-rueU62znv0wg)
+### [Link to design image](designs/contentproposaldesign.png)

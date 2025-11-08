@@ -79,8 +79,7 @@ body {
     margin: 0 auto;
 }
 
-### Link to design image
-![Design mockup](designs/contentproposaldesign.png)
+### [Link to design image](designs/contentproposaldesign.png)
 
 <header>
     <h1>
