@@ -1,0 +1,36 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Orbitron:wght@400..900&family=Parkinsans:wght@300..800&family=Permanent+Marker&display=swap');
+
+nav ul {
+    list-style-type: none; 
+    margin: 0;
+    padding: 0;
+    display: flex; 
+    justify-content: space-around; 
+    background-color: #1a4eb6;
+}
+
+header {
+    background-color: #1a4eb6;
+}
+
+header a {
+    display: block;
+    color: aliceblue;
+    padding: 14px 16px;
+    text-decoration: none;
+    text-align: center;
+    justify-content: space-around; 
+}
+
+header a:hover {
+    background-color: #1a4eb6;
+}
+a:hover {
+    background-color: #b4bcd2;
+    color:#4b6bba;
+    border-radius: 10px;
+}
+
+body {
+ font-family: "Parkinsans", sans-serif;
+}

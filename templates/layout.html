@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        {% block title %}{% endblock %}
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@exampledev/new.css@1/new.min.css">
+        <link href="../static/style.css" rel="stylesheet" type="text/css">
+        {% block scripts %}{% endblock %}
+    </head>
+    <header>
+        <h1>
+            <a href="{{ url_for('index')}}">J-score*</a>
+        </h1>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('admissions') }}">Go to Admissions Page</a></li>
+                <li><a href="{{ url_for('r_score') }}">Calculate your R-score</a></li>
+            </ul>
+        </nav>
+    </header>
+    <body>
+        {% block body %}{% endblock %}
+    </body>
+</html>
