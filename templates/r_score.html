@@ -50,3 +50,32 @@
 </main>
 
 {% endblock %}
+
+{% block footer %}
+
+<form action="{{ url_for('suggestion_result') }}" method="post">
+    <fieldset>
+        <legend>Suggestions or critiques for the website!</legend>
+        <section class="name"> 
+            <p>
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" required>
+            </p>
+        </section>
+        <section class="email">
+            <p>
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+            </p>
+        </section>
+        <section class="suggestion">
+            <p>
+                <label for="suggestion">Enter your suggestion:</label>
+                <textarea id="suggestion" name="suggestion" rows="10" cols="64" required></textarea>
+            </p>
+        </section>
+        <button type="submit">Submit</button>
+    </fieldset>
+</form>
+
+{% endblock %}
