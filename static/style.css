@@ -32,5 +32,29 @@ a:hover {
 }
 
 body {
- font-family: "Parkinsans", sans-serif;
+    font-family: "Parkinsans", sans-serif;
+    max-width: 1000px;
 }
+
+footer {    /* footer was copied from the header in new.css online to extend the borders to the edges of the screen */
+	background: #13367a;
+	color: white;
+	padding: 2rem 1.5rem;
+
+	margin: 2rem calc(50% - 50vw) 0px;
+	padding-left:  calc(50vw - 50%);
+	padding-right: calc(50vw - 50%);
+}
+
+.image_text {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.center {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
