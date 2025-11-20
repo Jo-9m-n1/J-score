@@ -44,7 +44,25 @@ def explanation():
 
 @app.route("/result", methods=["POST"])
 def result():
-    return render_template("result.html")
+    try:
+        grade = float(request.form.get("grade"))
+        class_grade = float(request.form.get("class_grade")) + 0.45
+        class_high_grade = float(request.form.get("class_high_grade"))
+        std = float(request.form.get("class_std"))
+        IDGZ = (request.form.get("science"))
+        if IDGZ == "No":
+            IDGZ = 1.19
+        elif IDGZ == "Yes":
+            IDGZ = 0.75
+        else:
+            return render_template("error.html")
+        ISGZ = (class_high_grade-73.64)/14.12
+        r_score = round((((grade - class_grade)/std)*IDGZ+ISGZ+5)*5, 2)
+
+        return render_template("result.html", r_score=r_score)
+    
+    except:
+        return render_template("error.html")
 
 @app.route("/suggestion", methods=["POST"])
 def suggestion():
