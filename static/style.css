@@ -42,3 +42,9 @@ a:hover {
 body {
     font-family: "Parkinsans", sans-serif;
 }
+
+textarea {
+  resize: none;
+  max-height: 1300px;
+  max-width: 500px;
+}
