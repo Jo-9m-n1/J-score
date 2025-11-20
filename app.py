@@ -3,6 +3,8 @@ import math
 
 app = Flask(__name__)
 
+SUGGESTIONS = []
+
 @app.route("/")
 def index():
     return render_template("index.html")
@@ -61,3 +63,31 @@ def result():
     
     except:
         return render_template("error.html")
+
+@app.route("/suggestion", methods=["POST"])
+def suggestion():
+    return render_template("suggestion.html")
+    
+@app.route("/suggestion_result", methods=["POST"])
+def suggestion_result():
+    global suggestion
+    required_fields = ["name", "email", "suggestion"]
+
+    name = request.form.get("name")
+    email = request.form.get("email")
+    suggestion = request.form.get("suggestion")
+
+    accepted_email = "@dawsoncollege.qc.ca"
+
+    for field in required_fields:
+        if not request.form.get(field):
+            return render_template("suggestion_error.html")
+
+    if accepted_email not in email:
+        return render_template("suggestion_error_email.html")
+    return render_template("suggestion_result.html", name=name, suggestion=suggestion)
+
+@app.route("/suggestion_leaderboard")
+def suggestion_leaderboard():
+    SUGGESTIONS.append(suggestion)
+    return render_template("suggestion_leaderboard.html", SUGGESTIONS=SUGGESTIONS)

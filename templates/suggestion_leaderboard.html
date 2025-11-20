@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+
+{% block body %}
+
+<main>
+    <p>
+        Previous Suggestions:
+    </p>
+        
+    <ul>
+        {% for key in SUGGESTIONS %}
+        <li>{{ key }}</li> 
+        {% endfor %}
+    </ul>
+
+    <p>
+        <a href="{{ url_for('r_score') }}">Submit Again</a>
+    </p>
+</main>
+
+{% endblock %}
