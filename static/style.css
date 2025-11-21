@@ -37,7 +37,7 @@ body {
 }
 
 footer {    /* footer was copied from the header in new.css online to extend the borders to the edges of the screen */
-	background: #13367a;
+	background: #1a4eb6;
 	color: white;
 	padding: 2rem 1.5rem;
 
@@ -56,4 +56,8 @@ footer {    /* footer was copied from the header in new.css online to extend the
     display: block;
     margin-left: auto;
     margin-right: auto;
+}
+
+fieldset {
+    border: 4px solid black;
 }
