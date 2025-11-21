@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request
 import math
+import csv
 
 app = Flask(__name__)
 
@@ -46,21 +47,29 @@ def explanation():
 @app.route("/result", methods=["POST"])
 def result():
     try:
+        subject = request.form.get("subject")
         grade = float(request.form.get("grade"))
-        class_grade = float(request.form.get("class_grade")) + 0.45
-        class_high_grade = float(request.form.get("class_high_grade"))
+        class_grade = float(request.form.get("class_grade"))
         std = float(request.form.get("class_std"))
-        IDGZ = (request.form.get("science"))
-        if IDGZ == "No":
+        class_high_grade = float(request.form.get("class_high_grade"))
+        subject_credit = float(request.form.get("credits"))
+        class_type = (request.form.get("science"))
+        
+        if class_type == "No":
             IDGZ = 1.19
-        elif IDGZ == "Yes":
+        elif class_type == "Yes":
             IDGZ = 0.75
         else:
             return render_template("error.html")
         ISGZ = (class_high_grade-73.64)/14.12
-        r_score = round((((grade - class_grade)/std)*IDGZ+ISGZ+5)*5, 2)
+        r_score = round((((grade - class_grade + 0.45)/std)*IDGZ+ISGZ+5)*5, 2)
 
-        return render_template("result.html", r_score=r_score)
+        #with open('.data/scores.csv', 'a', newline='') as csv_file:
+        #    user_data = csv.writer(csv_file, delimiter=',')
+        #    user_data.writerow([subject, grade, class_grade, std, class_high_grade, subject_credit,
+        #                        class_type, r_score])
+        
+        return render_template("result.html", subject=subject, grade=grade, class_grade=class_grade, std=std, class_high_grade=class_high_grade, credits=subject_credit, science_class=class_type, r_score=r_score)
     
     except:
         return render_template("error.html")

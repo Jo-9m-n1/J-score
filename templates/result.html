@@ -4,7 +4,42 @@
 {% block body %}
 
 <main>
-    <h1>Your calculated r-score is {{ r_score }}</h1>
+    <table>
+        <caption>Your calculated R-Scores for each class</caption>
+        <thead>
+            <tr>
+                <th scope="col">Subject</th>
+                <th scope="col">Grade</th>
+                <th scope="col">Class average</th>
+                <th scope="col">Class std. deviation</th>
+                <th scope="col">Class highschool grade</th>
+                <th scope="col">Subject credits</th>
+                <th scope="col">Science class</th>
+                <th scope="col">R-Score</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <th scope="row">{{ subject }}</th>
+                <td> {{ grade }} </td>
+                <td> {{ class_grade }} </td>
+                <td> {{ std }} </td>
+                <td> {{ class_high_grade }} </td>
+                <td> {{ credits }} </td>
+                <td> {{ science_class }} </td>
+                <td> {{ r_score }} </td>
+            </tr>
+        </tbody>
+        <tfoot>
+            <tr>
+                <th scope="row" colspan="7">Overall R-Score</th>
+                <td> {{ r_score }} </td>
+            </tr>
+        </tfoot>
+    </table>
+    <p>
+        <a href="{{ url_for('r_score') }}">Calculate the R-score of another class!</a>
+    </p>
 </main>
 
 {% endblock %}
