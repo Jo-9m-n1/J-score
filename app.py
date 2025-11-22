@@ -39,10 +39,6 @@ def result_ad():
     
     except:
         return render_template("error_ad.html")
-    
-@app.route("/explanation")
-def explanation():
-    return render_template("explanation.html")
 
 @app.route("/result", methods=["POST"])
 def result():
@@ -50,10 +46,12 @@ def result():
         subject = request.form.get("subject")
         grade = float(request.form.get("grade"))
         class_grade = float(request.form.get("class_grade"))
-        std = float(request.form.get("class_std"))
+        std = float(request.form.get("class_std")) 
         class_high_grade = float(request.form.get("class_high_grade"))
         subject_credit = float(request.form.get("credits"))
-        class_type = (request.form.get("science"))
+        class_type = request.form.get("science")
+        nickname = request.form.get("nickname")
+        password = request.form.get("password")
         
         if class_type == "No":
             IDGZ = 1.19
@@ -64,10 +62,76 @@ def result():
         ISGZ = (class_high_grade-73.64)/14.12
         r_score = round((((grade - class_grade + 0.45)/std)*IDGZ+ISGZ+5)*5, 2)
 
-        return render_template("result.html", r_score=r_score, subject="subject")
+        username = None
+        with open('.data/login.csv', mode='r', newline='') as csv_file:
+            login = csv.DictReader(csv_file, delimiter=',')
+            for row in login:
+                if row['nickname'] == nickname and row['password'] == password:
+                    username = nickname
+                    break
+        
+        if username == None:
+            return render_template("error_username.html")
+        
+        with open('.data/scores.csv', 'a', newline='') as csv_file:
+            data = csv.writer(csv_file, delimiter=',')
+            data.writerow([nickname,
+                           subject,
+                           grade,
+                           class_grade,
+                           std,
+                           class_high_grade,
+                           subject_credit,
+                           class_type,
+                           r_score])
+
+        print(username)
+        rows = []
+        global_list = []
+        weigthed_sum = 0
+        total_weight = 0
+        with open('.data/scores.csv', mode='r', newline='') as csv_file:
+            reader = csv.DictReader(csv_file, delimiter=',') 
+            for row in reader:
+                if row['nickname'] == username:
+                    rows.append([
+                        row['nickname'],
+                        row['subject'],
+                        row['grade'],
+                        row['class_grade'],
+                        row['std'],
+                        row['class_high_grade'],
+                        row['credits'],
+                        row['class_type'],
+                        row['r_score']
+                    ])
+                    global_list.append([float(row['r_score']), float(row['credits'])])
+
+        for item in global_list:
+            score, weight = item
+            weigthed_sum += score * weight
+            total_weight += weight
+
+        global_score = round(weigthed_sum/total_weight, 2)
+
+        return render_template("result.html", 
+                               subject=subject, 
+                               grade=grade, 
+                               class_grade=class_grade, 
+                               std=std, 
+                               class_high_grade=class_high_grade, 
+                               credits=subject_credit, 
+                               science_class=class_type, 
+                               r_score=r_score,
+                               past_score=rows,
+                               global_score=global_score)
     
     except:
         return render_template("error.html")
+    
+@app.route("/signup")
+def signup():
+    return render_template("signup.html")
 
 @app.route("/guest", methods=["POST"])
 def guest():
