@@ -17,7 +17,6 @@
         <caption>Your calculated R-Scores for each class</caption>
         <thead>
             <tr>
-                <th scope="col">Username</th>
                 <th scope="col">Subject</th>
                 <th scope="col">Grade</th>
                 <th scope="col">Class average</th>
@@ -31,8 +30,7 @@
         <tbody>
             {% for row in past_score %}
             <tr>
-                <th scope="row">{{ row[0] }}</th>
-                <td> {{ row[1] }} </td>
+                <th scope="row">{{ row[1] }}</th>
                 <td> {{ row[2] }} </td>
                 <td> {{ row[3] }} </td>
                 <td> {{ row[4] }} </td>
@@ -45,7 +43,7 @@
         </tbody>
         <tfoot>
             <tr>
-                <th scope="row" colspan="8">Global R-Score</th>
+                <th scope="row" colspan="7">Global R-Score</th>
                 <td> {{ global_score }} </td>
             </tr>
         </tfoot>
