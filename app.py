@@ -150,7 +150,7 @@ def signup_result():
         reader = csv.DictReader(csv_file)
         for row in reader:
             if row["nickname"].lower() == nickname.lower():
-                return render_template("account_exists.html")
+                return render_template("account_exists.html", nickname=nickname)
             
     with open(csv_path, 'a', newline='') as csv_file:
         data = csv.writer(csv_file, delimiter=',')
