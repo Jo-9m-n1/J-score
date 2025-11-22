@@ -85,7 +85,6 @@ def result():
                            class_type,
                            r_score])
 
-        print(username)
         rows = []
         global_list = []
         weigthed_sum = 0
