@@ -48,24 +48,23 @@
 <form action="{{ url_for('guest') }}" method="post">
     <fieldset>
         <legend>Add your name to the guestbook</legend>
-        <section class="q1"> 
+        <section class="nickname"> 
                 <p>
-                    <label for="q1">Your nickname:</label>
+                    <label for="nickname">Your nickname:</label>
                     <input type="text" id="q1" name="nickname" required>
                 
                 </p>
         </section>
-        <section class="q2">
+        <section class="country">
                 <p>
-                    <label for="q2">Your country:</label>
+                    <label for="country">Your country:</label>
                     <input type="text" id="q2" name="country">
                 </p>
         </section>
-        <section class="q3">
+        <section class="greeting">
                 <p>
-                    <label for="q3">Greeting:</label>
-                    <textarea id="q3" name="greeting" rows="5" cols="70">
-                    </textarea>
+                    <label for="greeting">Greeting:</label>
+                    <textarea id="greeting" name="greeting" rows="10" cols="64" required></textarea>
                 </p>
         </section>
         <button type="submit">Sign</button>
