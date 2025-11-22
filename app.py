@@ -66,7 +66,7 @@ def result():
         with open('.data/login.csv', mode='r', newline='') as csv_file:
             login = csv.DictReader(csv_file, delimiter=',')
             for row in login:
-                if row['nickname'] == nickname and row['password'] == password:
+                if row['nickname'].lower() == nickname.lower() and row['password'] == password:
                     username = nickname
                     break
         
