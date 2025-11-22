@@ -1,0 +1,18 @@
+{% extends "layout.html" %}
+
+{% block title %}
+
+<title>The account exists</title>
+
+{% endblock %}
+
+{% block body %}
+
+<main>
+    <h1>Your username already exists, try with a different username!</h1>
+    <p>
+        <a href="{{ url_for('signup') }}">Try Again!</a>
+    </p>
+</main>
+
+{% endblock %}

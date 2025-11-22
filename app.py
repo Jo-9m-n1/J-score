@@ -132,6 +132,31 @@ def result():
 def signup():
     return render_template("signup.html")
 
+@app.route("/signup_result", methods=["POST"])
+def signup_result():
+    nickname = request.form.get("username")
+    password = request.form.get("password")
+    required = ["username", "password"]
+    missing = []
+    for field in required:
+        if not request.form.get(field).replace(" ", ""):
+            missing.append(field)
+    if len(missing) != 0:
+        return render_template("missing.html", missing=missing)
+    
+    csv_path = '.data/login.csv'
+
+    with open(csv_path, mode='r', newline='') as csv_file:
+        reader = csv.DictReader(csv_file)
+        for row in reader:
+            if row["nickname"].lower() == nickname.lower():
+                return render_template("account_exists.html")
+            
+    with open(csv_path, 'a', newline='') as csv_file:
+        data = csv.writer(csv_file, delimiter=',')
+        data.writerow([nickname, password])
+    return render_template("index.html")
+
 @app.route("/guest", methods=["POST"])
 def guest():
     required = ["nickname", "country", "greeting"]
