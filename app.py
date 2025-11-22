@@ -3,6 +3,7 @@ import math
 
 app = Flask(__name__)
 
+user_ans = []
 SUGGESTIONS = []
 
 @app.route("/")
@@ -17,7 +18,7 @@ def r_score():
 def admissions():
     return render_template("admissions.html")
 
-@app.route("/admissions/result_ad", methods=["POST"])
+@app.route("/result_ad", methods=["POST"])
 def result_ad():
     try:
         university = request.form.get("university")
@@ -45,6 +46,7 @@ def explanation():
 @app.route("/result", methods=["POST"])
 def result():
     try:
+        subject = float(request.form.get("subject"))
         grade = float(request.form.get("grade"))
         class_grade = float(request.form.get("class_grade")) + 0.45
         class_high_grade = float(request.form.get("class_high_grade"))
@@ -59,10 +61,35 @@ def result():
         ISGZ = (class_high_grade-73.64)/14.12
         r_score = round((((grade - class_grade)/std)*IDGZ+ISGZ+5)*5, 2)
 
-        return render_template("result.html", r_score=r_score)
+        return render_template("result.html", r_score=r_score, subject=subject)
     
     except:
         return render_template("error.html")
+
+@app.route("/guest", methods=["POST"])
+def guest():
+    required = ["nickname", "country", "greeting"]
+    missing_field = []
+    for field in required:
+        if not request.form.get(field).replace(" ", ""):
+            missing_field.append(field)
+    if len(missing_field) != 0:
+        return render_template("guest_error.html", missing_field=missing_field)
+    else:
+        global nickname
+        nickname = request.form.get("nickname")
+        country = request.form.get("country")
+        greeting = request.form.get("greeting")
+        return render_template("guest.html",
+                                nickname=nickname,
+                                country=country,
+                                greeting=greeting)
+    
+@app.route("/guestbook")
+def guestbook():
+    user_ans.append(nickname)
+    print(user_ans)
+    return render_template("guestbook.html", user_ans=user_ans)
 
 @app.route("/suggestion", methods=["POST"])
 def suggestion():
