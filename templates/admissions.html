@@ -1,5 +1,10 @@
 {% extends "layout.html" %}
 
+{% block title %}
+
+<title>Calculate your chance</title>
+
+{% endblock %}
 
 {% block body %}
 <main>
@@ -44,25 +49,22 @@
     <fieldset>
         <legend>Add your name to the guestbook</legend>
         <section class="q1"> 
-            <h2>Your nickname</h2>
                 <p>
-                    <label for="q1">Answer:</label>
+                    <label for="q1">Your nickname:</label>
                     <input type="text" id="q1" name="nickname" required>
                 
                 </p>
         </section>
         <section class="q2">
-            <h2>Your country</h2>
                 <p>
-                    <label for="q2">Answer:</label>
+                    <label for="q2">Your country:</label>
                     <input type="text" id="q2" name="country">
                 </p>
         </section>
         <section class="q3">
-            <h2>Greeting</h2>
                 <p>
-                    <label for="q3">Answer:</label>
-                    <textarea id="q3" name="greeting" rows="5" cols="3">
+                    <label for="q3">Greeting:</label>
+                    <textarea id="q3" name="greeting" rows="5" cols="70">
                     </textarea>
                 </p>
         </section>

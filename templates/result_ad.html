@@ -1,19 +1,26 @@
 {% extends "layout.html" %}
 
+{% block title %}
+
+<title>Your chance</title>
+
+{% endblock %}
+
 {% block body %}
 <main>
 
-    <p>
+    <h1>
         Your chance of getting into {{ university }} {{ major }} with {{user_grade }} R-score is {{ chance }}%. 
-    </p>
+    </h1>
     <p>
         Please note that this is an approximate value
     </p>
     <p>
-        <a href="{{ url_for('explanation')}}">Find out how it is calculated!</a>
-    </p>
-    <p>
         <a href="{{ url_for('admissions') }}">Submit another one!</a>
     </p>
+    <p>
+        <a href="{{ url_for('index')}}">Find out how it is calculated!</a>
+    </p>
 </main>
+
 {% endblock %}

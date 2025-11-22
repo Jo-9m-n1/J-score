@@ -1,9 +1,15 @@
 {% extends "layout.html" %}
 
+{% block title %}
+
+<title>Missing inputs</title>
+
+{% endblock %}
+
 {% block body %}
     <p>You are missing:</p>
     <ul>
-        {% for item in empty %}
+        {% for item in missing_fields %}
             <li>{{ item }}</li>
         {% endfor %}
     </ul>
