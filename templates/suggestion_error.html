@@ -10,7 +10,7 @@
 <main>
     <h1>Error!</h1>
     <p>
-        You have missing answers. Please try again:
+        {{ error_message }}
         <a href="{{ url_for('r_score') }}">Submit Again</a>
     </p>
 </main>

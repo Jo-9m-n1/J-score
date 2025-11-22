@@ -1,10 +1,11 @@
 from flask import Flask, render_template, request
 import math
+import csv
 
 app = Flask(__name__)
 
 user_ans = []
-SUGGESTIONS = []
+user_suggestions = []
 
 @app.route("/")
 def index():
@@ -46,22 +47,24 @@ def explanation():
 @app.route("/result", methods=["POST"])
 def result():
     try:
-        subject = float(request.form.get("subject"))
+        subject = request.form.get("subject")
         grade = float(request.form.get("grade"))
-        class_grade = float(request.form.get("class_grade")) + 0.45
-        class_high_grade = float(request.form.get("class_high_grade"))
+        class_grade = float(request.form.get("class_grade"))
         std = float(request.form.get("class_std"))
-        IDGZ = (request.form.get("science"))
-        if IDGZ == "No":
+        class_high_grade = float(request.form.get("class_high_grade"))
+        subject_credit = float(request.form.get("credits"))
+        class_type = (request.form.get("science"))
+        
+        if class_type == "No":
             IDGZ = 1.19
-        elif IDGZ == "Yes":
+        elif class_type == "Yes":
             IDGZ = 0.75
         else:
             return render_template("error.html")
         ISGZ = (class_high_grade-73.64)/14.12
-        r_score = round((((grade - class_grade)/std)*IDGZ+ISGZ+5)*5, 2)
+        r_score = round((((grade - class_grade + 0.45)/std)*IDGZ+ISGZ+5)*5, 2)
 
-        return render_template("result.html", r_score=r_score, subject=subject)
+        return render_template("result.html", r_score=r_score, subject="subject")
     
     except:
         return render_template("error.html")
@@ -104,17 +107,15 @@ def suggestion_result():
     email = request.form.get("email")
     suggestion = request.form.get("suggestion")
 
-    accepted_email = "@dawsoncollege.qc.ca"
-
+    if not email.endswith("@dawsoncollege.qc.ca"):
+        return render_template("suggestion_error.html", error_message="Your email didn't end with @dawsoncollege.qc.ca. You're not a Dawson student! Please try again:")
     for field in required_fields:
         if not request.form.get(field):
-            return render_template("suggestion_error.html")
+            return render_template("suggestion_error.html", error_message="You have missing answers. Please try again:")
 
-    if accepted_email not in email:
-        return render_template("suggestion_error_email.html")
     return render_template("suggestion_result.html", name=name, suggestion=suggestion)
 
 @app.route("/suggestion_leaderboard")
 def suggestion_leaderboard():
-    SUGGESTIONS.append(suggestion)
-    return render_template("suggestion_leaderboard.html", SUGGESTIONS=SUGGESTIONS)
+    user_suggestions.append(suggestion)
+    return render_template("suggestion_leaderboard.html", user_suggestions=user_suggestions)
