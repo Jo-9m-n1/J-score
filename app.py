@@ -71,7 +71,7 @@ def result():
                     break
         
         if username == None:
-            return render_template("error_username.html")
+            return render_template("error_username.html", subject=subject, r_score=r_score)
         
         with open('.data/scores.csv', 'a', newline='') as csv_file:
             data = csv.writer(csv_file, delimiter=',')
