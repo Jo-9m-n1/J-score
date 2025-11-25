@@ -9,14 +9,21 @@
 {% block body %}
 <main>
     <form action="{{ url_for('signup_result') }}" method="POST">
+        <label>Name:</label>
+        <input type="text" name="name" required>
+
         <label>Username:</label>
-        <input type="text" name="username">
+        <input type="text" name="username" required>
 
         <label>Password:</label>
-        <input type="password" name="password">
-
-        <button type="submit">Sign Up</button>
+        <input type="password" name="password" required>
+        <p>
+            <button type="submit">Sign Up</button>
+        </p>
     </form>
+    <p>
+        Forgot your password? <a href="{{ url_for('password') }}">Find your password!</a>
+    </p>
     <p>
         Already have an account? <a href="{{ url_for('r_score') }}">Calculate the R-score!</a>
     </p>

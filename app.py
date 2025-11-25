@@ -134,9 +134,10 @@ def signup():
 
 @app.route("/signup_result", methods=["POST"])
 def signup_result():
+    name = request.form.get("name")
     nickname = request.form.get("username")
     password = request.form.get("password")
-    required = ["username", "password"]
+    required = ["name", "username", "password"]
     missing = []
     for field in required:
         if not request.form.get(field).replace(" ", ""):
@@ -154,7 +155,7 @@ def signup_result():
             
     with open(csv_path, 'a', newline='') as csv_file:
         data = csv.writer(csv_file, delimiter=',')
-        data.writerow([nickname, password])
+        data.writerow([name, nickname, password])
     return render_template("index.html")
 
 @app.route("/guest", methods=["POST"])
@@ -207,3 +208,20 @@ def suggestion_result():
 def suggestion_leaderboard():
     user_suggestions.append(suggestion)
     return render_template("suggestion_leaderboard.html", user_suggestions=user_suggestions)
+
+@app.route("/password")
+def password():
+    return render_template("password.html")
+
+@app.route("/password_result", methods=["POST"])
+def password_result():
+    username = request.form.get("nickname")
+    name = request.form.get("name")
+
+    with open('.data/login.csv', mode='r', newline='') as csv_file:
+        reader = csv.DictReader(csv_file)
+        for row in reader:
+            if row["nickname"].lower() == username.lower() and row["name"].lower() == name.lower():
+                password = row["password"]
+                return render_template("password_result.html", password=password)
+            # It is not done
