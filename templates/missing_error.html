@@ -9,11 +9,11 @@
 {% block body %}
     <p>You are missing:</p>
     <ul>
-        {% for item in missing_fields %}
+        {% for item in missing_field %}
             <li>{{ item }}</li>
         {% endfor %}
     </ul>
     <p>
-        <a href="{{ url_for('admissions') }}">Try Again!</a>
+        <a href="{{ url_for('r_score') }}">Try Again!</a>
     </p>
 {% endblock %}

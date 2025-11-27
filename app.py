@@ -38,7 +38,7 @@ def result_ad():
                                 cut_off=cut_off)
     
     except:
-        return render_template("error_ad.html")
+        return render_template("error.html", error_message="Something went wrong. Please try again.")
 
 @app.route("/result", methods=["POST"])
 def result():
@@ -58,7 +58,7 @@ def result():
         elif class_type == "Yes":
             IDGZ = 0.75
         else:
-            return render_template("error.html")
+            return render_template("error.html", error_message="Something went wrong. Please try again.")
         ISGZ = (class_high_grade-73.64)/14.12
         r_score = round((((grade - class_grade + 0.45)/std)*IDGZ+ISGZ+5)*5, 2)
 
@@ -126,7 +126,7 @@ def result():
                                global_score=global_score)
     
     except:
-        return render_template("error.html")
+        return render_template("error.html", error_message="Something went wrong. Please try again.")
     
 @app.route("/signup")
 def signup():
@@ -138,12 +138,12 @@ def signup_result():
     nickname = request.form.get("username")
     password = request.form.get("password")
     required = ["name", "username", "password"]
-    missing = []
+    missing_field = []
     for field in required:
         if not request.form.get(field).replace(" ", ""):
-            missing.append(field)
-    if len(missing) != 0:
-        return render_template("missing.html", missing=missing)
+            missing_field.append(field)
+    if len(missing_field) != 0:
+        return render_template("missing_error.html", missing_field=missing_field)
     
     csv_path = '.data/login.csv'
 
@@ -166,7 +166,7 @@ def guest():
         if not request.form.get(field).replace(" ", ""):
             missing_field.append(field)
     if len(missing_field) != 0:
-        return render_template("guest_error.html", missing_field=missing_field)
+        return render_template("missing_error_ad.html", missing_field=missing_field)
     else:
         global nickname
         nickname = request.form.get("nickname")
@@ -197,10 +197,10 @@ def suggestion_result():
     suggestion = request.form.get("suggestion")
 
     if not email.endswith("@dawsoncollege.qc.ca"):
-        return render_template("suggestion_error.html", error_message="Your email didn't end with @dawsoncollege.qc.ca. You're not a Dawson student! Please try again:")
+        return render_template("error.html", error_message="Your email didn't end with @dawsoncollege.qc.ca. You're not a Dawson student! Please try again.")
     for field in required_fields:
         if not request.form.get(field):
-            return render_template("suggestion_error.html", error_message="You have missing answers. Please try again:")
+            return render_template("error.html", error_message="You have missing answers. Please try again.")
 
     return render_template("suggestion_result.html", name=name, suggestion=suggestion)
 
@@ -224,4 +224,5 @@ def password_result():
             if row["nickname"].lower() == username.lower() and row["name"].lower() == name.lower():
                 password = row["password"]
                 return render_template("password_result.html", password=password)
-            # It is not done
+            else:
+                return render_template("account_not_exist.html")

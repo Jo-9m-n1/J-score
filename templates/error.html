@@ -1,1 +1,18 @@
 {% extends "layout.html" %}
+
+{% block title %}
+
+<title>Error</title>
+
+{% endblock %}
+
+{% block body %}
+<main>
+    <h1>Error!</h1>
+    <p>
+        {{ error_message }}
+        <a href="{{ url_for('r_score') }}">Submit Again</a>
+    </p>
+</main>
+
+{% endblock %}

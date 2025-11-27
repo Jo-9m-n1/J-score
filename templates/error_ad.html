@@ -7,11 +7,11 @@
 {% endblock %}
 
 {% block body %}
-
 <main>
-    <h1>Your inputs are not valid, try again!</h1>
+    <h1>Error!</h1>
     <p>
-        <a href="{{ url_for('admissions') }}">Submit Again!</a>
+        {{ error_message }}
+        <a href="{{ url_for('admissions') }}">Submit Again</a>
     </p>
 </main>
 
