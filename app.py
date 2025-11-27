@@ -38,7 +38,7 @@ def result_ad():
                                 cut_off=cut_off)
     
     except:
-        return render_template("error.html", error_message="Something went wrong. Please try again.")
+        return render_template("error_ad.html", error_message="Something went wrong. Please try again.")
 
 @app.route("/result", methods=["POST"])
 def result():
@@ -166,7 +166,7 @@ def guest():
         if not request.form.get(field).replace(" ", ""):
             missing_field.append(field)
     if len(missing_field) != 0:
-        return render_template("missing_error_ad.html", missing_field=missing_field)
+        return render_template("missing_error_sign.html", missing_field=missing_field)
     else:
         global nickname
         nickname = request.form.get("nickname")
