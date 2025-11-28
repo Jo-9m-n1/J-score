@@ -101,7 +101,7 @@ def result():
         global_score = globalScore(global_list)
         display_message = (f"Your latest calculated r-score for {subject} is {r_score}")
 
-        return render_template("result.html", display_message=display_message, past_score=rows, global_score=global_score)
+        return render_template("result.html", display_message=display_message, past_score=rows, global_score=global_score, username=nickname)
     
     except:
         return render_template("error.html", error_message="Something went wrong. Please try again.")
@@ -247,9 +247,10 @@ def password_result():
             
 @app.route("/remove_last_score", methods=["POST"])
 def remove_last_score():
-
+    user_name = request.form.get("username")
     rows = []
     fieldnames = []
+    user_rows = []
 
     with open('.data/scores.csv', mode='r', newline='') as csv_file:
         reader = csv.DictReader(csv_file, delimiter=',')
@@ -257,15 +258,20 @@ def remove_last_score():
         rows = list(reader)
 
     if rows:
-        rows.pop()
+        for row in rows:
+            if row['nickname'].lower() == user_name.lower():
+                user_rows.append(row)
+        for row in rows:
+            if user_rows[-1] == row:
+                rows.remove(row)
 
     with open('.data/scores.csv', mode='w', newline='') as csv_file:
         writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(rows)
+    
 
-
-    item_row, found_user, global_list = values_to_list(rows, verified=True) 
+    item_row, found_user, global_list = values_to_list(rows, user_name, verified=False) 
 
     if not found_user:
         return render_template("missing_score.html")    
@@ -277,7 +283,7 @@ def remove_last_score():
 
     display_message = "Updated!"  
 
-    return render_template("result.html", display_message=display_message, past_score=item_row, global_score=global_score)
+    return render_template("result.html", display_message=display_message, past_score=item_row, global_score=global_score, username=user_name)
 
 def globalScore(global_list):
     weighted_sum = 0
