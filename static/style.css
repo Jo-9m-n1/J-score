@@ -34,13 +34,15 @@ a:hover {
 body {
     font-family: "Parkinsans", sans-serif;
     max-width: 1000px;
+    padding: 0;
+    margin: 0 auto;
 }
 
 footer {    /* footer was copied from the header in new.css online to extend the borders to the edges of the screen */
 	background: #1a4eb6;
 	color: white;
 	padding: 2rem 1.5rem;
-	margin: 0 calc(50% - 50vw) 2rem;
+	margin: 0 calc(50% - 50vw) 0;
 	padding-left:  calc(50vw - 50%);
 	padding-right: calc(50vw - 50%);
 }
@@ -63,4 +65,22 @@ footer a {
 
 fieldset {
     border: 4px solid black;
+}
+
+img {
+    transition: box-shadow 0.3s ease-out;
+    padding: 10px;
+    outline: none;
+}
+
+img:hover {
+    box-shadow:
+        0 0 30px rgba(233, 245, 255, 0.4),
+        0 0 60px rgba(41, 106, 236, 0.3),
+        0 0 1000px rgba(34, 96, 219, 0.2);
+}
+
+p {
+    line-height: 1.7;
+    font-size: 20px;
 }

@@ -85,45 +85,17 @@ def result():
                            class_type,
                            r_score])
 
-        rows = []
-        global_list = []
-        weigthed_sum = 0
-        total_weight = 0
         with open('.data/scores.csv', mode='r', newline='') as csv_file:
-            reader = csv.DictReader(csv_file, delimiter=',') 
-            for row in reader:
-                if row['nickname'] == username:
-                    rows.append([
-                        row['nickname'],
-                        row['subject'],
-                        row['grade'],
-                        row['class_grade'],
-                        row['std'],
-                        row['class_high_grade'],
-                        row['credits'],
-                        row['class_type'],
-                        row['r_score']
-                    ])
-                    global_list.append([float(row['r_score']), float(row['credits'])])
+            reader = csv.DictReader(csv_file, delimiter=',')
+            rows, found_user, global_list = values_to_list(reader, username, verified=False)     
 
-        for item in global_list:
-            score, weight = item
-            weigthed_sum += score * weight
-            total_weight += weight
+        if not found_user:
+            return render_template("missing_score.html")        
+        
+        global_score = globalScore(global_list)
+        display_message = (f"Your latest calculated r-score for {subject} is {r_score}")
 
-        global_score = round(weigthed_sum/total_weight, 2)
-
-        return render_template("result.html", 
-                               subject=subject, 
-                               grade=grade, 
-                               class_grade=class_grade, 
-                               std=std, 
-                               class_high_grade=class_high_grade, 
-                               credits=subject_credit, 
-                               science_class=class_type, 
-                               r_score=r_score,
-                               past_score=rows,
-                               global_score=global_score)
+        return render_template("result.html", display_message=display_message, past_score=rows, global_score=global_score)
     
     except:
         return render_template("error.html", error_message="Something went wrong. Please try again.")
@@ -148,41 +120,16 @@ def your_r_score():
             if username == None:
                 return render_template("account_not_exist.html")
             
-        rows = []
-        global_list = []
-        weigthed_sum = 0
-        total_weight = 0
         with open('.data/scores.csv', mode='r', newline='') as csv_file:
-            reader = csv.DictReader(csv_file, delimiter=',') 
-            found_user = False
-            for row in reader:
-                if row['nickname'] == username:
-                    found_user = True
-                    rows.append([
-                        row['nickname'],
-                        row['subject'],
-                        row['grade'],
-                        row['class_grade'],
-                        row['std'],
-                        row['class_high_grade'],
-                        row['credits'],
-                        row['class_type'],
-                        row['r_score']])
-                    global_list.append([float(row['r_score']), float(row['credits'])])
+            reader = csv.DictReader(csv_file, delimiter=',')
+            rows, found_user, global_list = values_to_list(reader, username, verified=False) 
 
         if not found_user:
             return render_template("missing_score.html")
         
-        for item in global_list:
-            score, weight = item
-            weigthed_sum += score * weight
-            total_weight += weight
+        global_score = globalScore(global_list)
 
-        global_score = round(weigthed_sum/total_weight, 2)
-
-        return render_template("your_r_score.html",
-                            past_score=rows,
-                            global_score=global_score)
+        return render_template("your_r_score.html", past_score=rows, global_score=global_score)
     
     except:
         render_template("error_check.html")
@@ -285,3 +232,71 @@ def password_result():
                 return render_template("password_result.html", password=password)
             else:
                 return render_template("account_not_exist.html")
+            
+@app.route("/remove_last_score", methods=["POST"])
+def remove_last_score():
+
+    rows = []
+    fieldnames = []
+
+    with open('.data/scores.csv', mode='r', newline='') as csv_file:
+        reader = csv.DictReader(csv_file, delimiter=',')
+        fieldnames = reader.fieldnames
+        rows = list(reader)
+
+    if rows:
+        rows.pop()
+
+    with open('.data/scores.csv', mode='w', newline='') as csv_file:
+        writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(rows)
+
+
+    item_row, found_user, global_list = values_to_list(rows, verified=True) 
+
+    if not found_user:
+        return render_template("missing_score.html")    
+        
+    if global_list:
+        global_score = globalScore(global_list)
+    else:
+        global_score = "0"
+
+    display_message = "Updated!"  
+
+    return render_template("result.html", display_message=display_message, past_score=item_row, global_score=global_score)
+
+def globalScore(global_list):
+    weighted_sum = 0
+    total_weight = 0
+    for item in global_list:
+        score, weight = item
+        weighted_sum += score * weight
+        total_weight += weight
+    global_score = round(weighted_sum/total_weight, 2)
+    return global_score
+
+def values_to_list(rows, username=None, verified=True):
+    item_rows = []
+    global_list = []
+    found_user = False
+
+    for row in rows:
+        if verified or row['nickname'] == username:
+            found_user = True
+            item_rows.append([
+                row['nickname'],
+                row['subject'],
+                row['grade'],
+                row['class_grade'],
+                row['std'],
+                row['class_high_grade'],
+                row['credits'],
+                row['class_type'],
+                row['r_score'],
+            ])
+            if row['r_score'] and row['credits']:
+                global_list.append([float(row['r_score']), float(row['credits'])])
+
+    return item_rows, found_user, global_list

@@ -9,9 +9,9 @@
 {% block body %}
 
 <main>
-    <h1>Your calculated r-score for {{ subject}} is {{ r_score }}</h1>
+    <h1>{{ display_message }}</h1>
     <p>
-        Please note that this is an approximate value
+        Please note that the R-Score is an approximate value
     </p>
     <table>
         <caption>Your calculated R-Scores for each class</caption>
@@ -48,6 +48,9 @@
             </tr>
         </tfoot>
     </table>
+    <form action="{{ url_for('remove_last_score') }}" method="post">
+        <button type="submit">Remove previous score</button>
+    </form>
     <p>
         <a href="{{ url_for('r_score') }}">Calculate the R-score of another class!</a>
     </p>
