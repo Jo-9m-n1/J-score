@@ -55,6 +55,7 @@ def result():
         class_type = request.form.get("science")
         nickname = request.form.get("nickname").strip()
         password = encrypt(request.form.get("password"))
+        print("password")
         
         if class_type == "No":
             IDGZ = 1.19
@@ -86,6 +87,7 @@ def result():
                         break
 
             if foundDuplicate:
+                password = decrypt(password)
                 score_data = {
                     "nickname": nickname,
                     "subject": subject,
@@ -350,7 +352,7 @@ def encrypt(text, shift=3):
     return result[::-1]
 
 def decrypt(text, shift=3):
-    text = text[::1]
+    text = text[::-1]
     result = ""
     for i, char in enumerate(text):
         new_char = chr((ord(char) - shift - i) % 256)
