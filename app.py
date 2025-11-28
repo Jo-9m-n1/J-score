@@ -162,7 +162,11 @@ def signup_result():
     with open(csv_path, 'a', newline='') as csv_file:
         data = csv.writer(csv_file, delimiter=',')
         data.writerow([name, nickname, password])
-    return render_template("index.html")
+    return render_template("welcome.html", username=nickname)
+
+@app.route("/welcome")
+def welcome():
+    render_template("welcome.html")
 
 @app.route("/guest", methods=["POST"])
 def guest():
@@ -221,17 +225,19 @@ def password():
 
 @app.route("/password_result", methods=["POST"])
 def password_result():
-    username = request.form.get("nickname")
-    name = request.form.get("name")
+    try:
+        username = request.form.get("nickname")
+        name = request.form.get("name")
 
-    with open('.data/login.csv', mode='r', newline='') as csv_file:
-        reader = csv.DictReader(csv_file)
-        for row in reader:
-            if row["nickname"].lower() == username.lower() and row["name"].lower() == name.lower():
-                password = row["password"]
-                return render_template("password_result.html", password=password)
-            else:
-                return render_template("account_not_exist.html")
+        with open('.data/login.csv', mode='r', newline='') as csv_file:
+            reader = csv.DictReader(csv_file)
+            for row in reader:
+                if row["nickname"].lower() == username.lower() and row["name"].lower() == name.lower():
+                    password = row["password"]
+                    return render_template("password_result.html", password=password)
+        return render_template("account_not_exist.html")
+    except:
+        return render_template("error_pass.html")
             
 @app.route("/remove_last_score", methods=["POST"])
 def remove_last_score():
