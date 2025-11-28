@@ -13,7 +13,7 @@
             <h2>Your dream university</h2>
                 <p>
                     <label for="q1">Answer:</label>
-                    <input type="text" id="q1" name="university" required>
+                    <input type="text" id="q1" name="university" placeholder="McGill" required>
                 
                 </p>
         </section>
@@ -21,21 +21,21 @@
             <h2>Your dream major in that university</h2>
                 <p>
                     <label for="q2">Answer:</label>
-                    <input type="text" id="q2" name="major" required>
+                    <input type="text" id="q2" name="major" placeholder="Computer Science" required>
                 </p>
         </section>
         <section class="q3">
             <h2>Last year's R-score cutoff</h2>
                 <p>
                     <label for="q3">Answer:</label>
-                    <input type="number" id="q3" name="r_score" step="any" required>
+                    <input type="number" id="q3" name="r_score" step="any" placeholder="28" required>
                 </p>
         </section>
         <section class="q4">
             <h2>Your global R-score</h2>
                 <p>
                     <label for="q4">Answer:</label>
-                    <input type="number" id="q4" name="user_grade" step="any" required>
+                    <input type="number" id="q4" name="user_grade" step="any" placeholder="35" required>
                 </p>
                 <p>
                     You do not know your global R-score? <a href="{{ url_for('signup') }}">Calculate it now!</a>
@@ -54,14 +54,14 @@
         <section class="nickname"> 
                 <p>
                     <label for="nickname">Your nickname:</label>
-                    <input type="text" id="q1" name="nickname" required>
+                    <input type="text" id="q1" name="nickname" placeholder="Bob" required>
                 
                 </p>
         </section>
         <section class="country">
                 <p>
                     <label for="country">Your country:</label>
-                    <input type="text" id="q2" name="country">
+                    <input type="text" id="q2" placeholder="Canada" name="country">
                 </p>
         </section>
         <section class="greeting">

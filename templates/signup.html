@@ -9,14 +9,18 @@
 {% block body %}
 <main>
     <form action="{{ url_for('signup_result') }}" method="POST">
-        <label>Name:</label>
-        <input type="text" name="name" required>
-
-        <label>Username:</label>
-        <input type="text" name="username" required>
-
-        <label>Password:</label>
-        <input type="password" name="password" required>
+        <p>
+            <label>Name:</label>
+            <input type="text" name="name" placeholder="Bob" required>
+        </p>
+        <p>
+            <label>Username:</label>
+            <input type="text" name="username" placeholder="Bob1234" required>
+        </p>
+        <p>
+            <label>Password:</label>
+            <input type="password" name="password" required>
+        </p>
         <p>
             <button type="submit">Sign Up</button>
         </p>

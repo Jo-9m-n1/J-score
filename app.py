@@ -127,7 +127,66 @@ def result():
     
     except:
         return render_template("error.html", error_message="Something went wrong. Please try again.")
+
+@app.route("/check_r_score")
+def check_r_score():
+    return render_template("check_r_score.html")
+
+@app.route("/your_r_score", methods=["POST"])
+def your_r_score():
+    try:
+        nickname = request.form.get("nickname")
+        password = request.form.get("password")
+        username = None
+        with open('.data/login.csv', mode='r', newline='') as csv_file:
+            login = csv.DictReader(csv_file, delimiter=',')
+            for row in login:
+                if row['nickname'].lower() == nickname.lower() and row['password'] == password:
+                    username = nickname
+                    break
+            
+            if username == None:
+                return render_template("account_not_exist.html")
+            
+        rows = []
+        global_list = []
+        weigthed_sum = 0
+        total_weight = 0
+        with open('.data/scores.csv', mode='r', newline='') as csv_file:
+            reader = csv.DictReader(csv_file, delimiter=',') 
+            found_user = False
+            for row in reader:
+                if row['nickname'] == username:
+                    found_user = True
+                    rows.append([
+                        row['nickname'],
+                        row['subject'],
+                        row['grade'],
+                        row['class_grade'],
+                        row['std'],
+                        row['class_high_grade'],
+                        row['credits'],
+                        row['class_type'],
+                        row['r_score']])
+                    global_list.append([float(row['r_score']), float(row['credits'])])
+
+        if not found_user:
+            return render_template("missing_score.html")
+        
+        for item in global_list:
+            score, weight = item
+            weigthed_sum += score * weight
+            total_weight += weight
+
+        global_score = round(weigthed_sum/total_weight, 2)
+
+        return render_template("your_r_score.html",
+                            past_score=rows,
+                            global_score=global_score)
     
+    except:
+        render_template("error_check.html")
+
 @app.route("/signup")
 def signup():
     return render_template("signup.html")
