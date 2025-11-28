@@ -19,7 +19,7 @@ def r_score():
 def admissions():
     return render_template("admissions.html")
 
-@app.route("/result_ad", methods=["POST", "GET"]) # TAKE IT OUT!
+@app.route("/result_ad", methods=["POST"])
 def result_ad():
     try:
         university = request.form.get("university")
@@ -54,7 +54,7 @@ def result():
         subject_credit = float(request.form.get("credits"))
         class_type = request.form.get("science")
         nickname = request.form.get("nickname").strip()
-        password = request.form.get("password")
+        password = encrypt(request.form.get("password"))
         
         if class_type == "No":
             IDGZ = 1.19
@@ -142,7 +142,7 @@ def your_r_score():
         with open('.data/login.csv', mode='r', newline='') as csv_file:
             login = csv.DictReader(csv_file, delimiter=',')
             for row in login:
-                if row['nickname'].lower() == nickname.lower() and row['password'] == password:
+                if row['nickname'].lower() == nickname.lower() and row['password'] == encrypt(password):
                     username = nickname
                     break
             
@@ -158,8 +158,7 @@ def your_r_score():
         
         global_score = globalScore(global_list)
 
-        display_message = "e"
-        print(nickname)
+        display_message = "These are your R-scores"
         return render_template("result.html", display_message=display_message, past_score=rows, global_score=global_score, username=nickname)
     
     except:
@@ -174,7 +173,7 @@ def signup_result():
     name = request.form.get("name")
     nickname = request.form.get("nickname").strip()
     password = request.form.get("password")
-    required = ["name", "username", "password"]
+    required = ["name", "nickname", "password"]
     missing_field = []
     for field in required:
         if not request.form.get(field).replace(" ", ""):
@@ -192,7 +191,7 @@ def signup_result():
             
     with open(csv_path, 'a', newline='') as csv_file:
         data = csv.writer(csv_file, delimiter=',')
-        data.writerow([name, nickname, password])
+        data.writerow([name, nickname, encrypt(password)])
     return render_template("welcome.html", username=nickname)
 
 @app.route("/welcome")
@@ -265,7 +264,7 @@ def password_result():
             for row in reader:
                 if row["nickname"].lower() == username.lower() and row["name"].lower() == name.lower():
                     password = row["password"]
-                    return render_template("password_result.html", password=password)
+                    return render_template("password_result.html", password=decrypt(password))
         return render_template("account_not_exist.html")
     except:
         return render_template("error_pass.html")
@@ -342,3 +341,18 @@ def values_to_list(rows, username=None, verified=True):
                 global_list.append([float(row['r_score']), float(row['credits'])])
 
     return item_rows, found_user, global_list
+
+def encrypt(text, shift=3):
+    result = ""
+    for i, char in enumerate(text):
+        new_char = chr((ord(char)+shift+i)%256)
+        result += new_char      
+    return result[::-1]
+
+def decrypt(text, shift=3):
+    text = text[::1]
+    result = ""
+    for i, char in enumerate(text):
+        new_char = chr((ord(char) - shift - i) % 256)
+        result += new_char
+    return result
