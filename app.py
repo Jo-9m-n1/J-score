@@ -135,7 +135,9 @@ def your_r_score():
         
         global_score = globalScore(global_list)
 
-        return render_template("your_r_score.html", past_score=rows, global_score=global_score)
+        display_message = "e"
+        print(nickname)
+        return render_template("result.html", display_message=display_message, past_score=rows, global_score=global_score, username=nickname)
     
     except:
         render_template("error_check.html")
@@ -147,7 +149,7 @@ def signup():
 @app.route("/signup_result", methods=["POST"])
 def signup_result():
     name = request.form.get("name")
-    nickname = request.form.get("username")
+    nickname = request.form.get("nickname").strip()
     password = request.form.get("password")
     required = ["name", "username", "password"]
     missing_field = []
@@ -247,8 +249,7 @@ def password_result():
             
 @app.route("/remove_last_score", methods=["POST"])
 def remove_last_score():
-    user_name = request.form.get("username")
-    rows = []
+    user_name = request.form.get("username").strip()
     fieldnames = []
     user_rows = []
 
@@ -301,7 +302,7 @@ def values_to_list(rows, username=None, verified=True):
     found_user = False
 
     for row in rows:
-        if verified or row['nickname'] == username:
+        if verified or row['nickname'] == username.lower():
             found_user = True
             item_rows.append([
                 row['nickname'],
