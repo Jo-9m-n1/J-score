@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, url_for
 import math
 import csv
 
@@ -19,7 +19,7 @@ def r_score():
 def admissions():
     return render_template("admissions.html")
 
-@app.route("/result_ad", methods=["POST"])
+@app.route("/result_ad", methods=["POST", "GET"]) # TAKE IT OUT!
 def result_ad():
     try:
         university = request.form.get("university")
@@ -38,7 +38,9 @@ def result_ad():
                                 cut_off=cut_off)
     
     except:
-        return render_template("error_ad.html", error_message="Something went wrong. Please try again.")
+        error_message = "You have missing values!"
+        submit_again = "Submit Again"
+        return render_template("error.html", error_message=error_message, url=url_for('admissions'), submit_again=submit_again)
 
 @app.route("/result", methods=["POST"])
 def result():
@@ -58,7 +60,7 @@ def result():
         elif class_type == "Yes":
             IDGZ = 0.75
         else:
-            return render_template("error.html", error_message="Something went wrong. Please try again.")
+            return render_template("error.html", error_message="You didn't answer the question: Is this a science course? Please try again.", url=url_for('r_score'), submit_again="Submit Again")
         ISGZ = (class_high_grade-73.64)/14.12
         r_score = round((((grade - class_grade + 0.45)/std)*IDGZ+ISGZ+5)*5, 2)
 
@@ -104,7 +106,7 @@ def result():
         return render_template("result.html", display_message=display_message, past_score=rows, global_score=global_score, username=nickname)
     
     except:
-        return render_template("error.html", error_message="Something went wrong. Please try again.")
+        return render_template("error.html", error_message="You have missing values! Please try again.", url=url_for('r_score'), submit_again="Submit Again")
 
 @app.route("/check_r_score")
 def check_r_score():
