@@ -1,0 +1,20 @@
+{% extends "layout.html" %}
+
+{% block title %}
+
+<title>Subject already exists</title>
+
+{% endblock %}
+
+{% block body %}
+
+<main>
+    <h1>
+        You already have a calculated R-score for {{ subject }}.
+    </h1>
+    <p>
+        Did you make a mistake? <a href="{{ url_for('r_score') }}">Calculate it again!</a>
+    </p>
+</main>
+
+{% endblock %}

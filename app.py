@@ -43,14 +43,14 @@ def result_ad():
 @app.route("/result", methods=["POST"])
 def result():
     try:
-        subject = request.form.get("subject")
+        subject = request.form.get("subject").strip()
         grade = float(request.form.get("grade"))
         class_grade = float(request.form.get("class_grade"))
         std = float(request.form.get("class_std")) 
         class_high_grade = float(request.form.get("class_high_grade"))
         subject_credit = float(request.form.get("credits"))
         class_type = request.form.get("science")
-        nickname = request.form.get("nickname")
+        nickname = request.form.get("nickname").strip()
         password = request.form.get("password")
         
         if class_type == "No":
@@ -73,6 +73,12 @@ def result():
         if username == None:
             return render_template("error_username.html", subject=subject, r_score=r_score)
         
+        with open('.data/scores.csv', mode='r', newline='') as csv_file:
+            check_subject = csv.DictReader(csv_file, delimiter=',')   
+            for row2 in check_subject:
+                if row2['nickname'].lower() == nickname.lower() and row2['subject'].lower() == subject.lower():    
+                    return render_template("subject_exist.html", subject=subject)
+                
         with open('.data/scores.csv', 'a', newline='') as csv_file:
             data = csv.writer(csv_file, delimiter=',')
             data.writerow([nickname,
