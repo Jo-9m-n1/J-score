@@ -84,11 +84,13 @@
         <section class="science">
             <h2>Is it a science course? (e.g. Programming, Mechanics, etc)</h2>
                 <p>
-                    <input type="radio" id="No" name="science" value="No">
+                    <input type="radio" id="No" name="science" value="No" required>
                     <label for="0">No</label>
-                    <input type="radio" id="Yes" name="science" value="Yes">
+                    <input type="radio" id="Yes" name="science" value="Yes" required>
                     <label for="1">Yes</label>
                 </p>
+        </section>
+        <input type="hidden" name="re_take" value="no" />
         <button type="submit">Submit</button>
     </form>
 </main>

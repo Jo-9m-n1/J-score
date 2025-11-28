@@ -45,6 +45,7 @@ def result_ad():
 @app.route("/result", methods=["POST"])
 def result():
     try:
+        re_take = request.form.get("re_take")
         subject = request.form.get("subject").strip()
         grade = float(request.form.get("grade"))
         class_grade = float(request.form.get("class_grade"))
@@ -75,27 +76,47 @@ def result():
         if username == None:
             return render_template("error_username.html", subject=subject, r_score=r_score)
         
-        with open('.data/scores.csv', mode='r', newline='') as csv_file:
-            check_subject = csv.DictReader(csv_file, delimiter=',')   
-            for row2 in check_subject:
-                if row2['nickname'].lower() == nickname.lower() and row2['subject'].lower() == subject.lower():    
-                    return render_template("subject_exist.html", subject=subject)
-                
-        with open('.data/scores.csv', 'a', newline='') as csv_file:
-            data = csv.writer(csv_file, delimiter=',')
-            data.writerow([nickname,
-                           subject,
-                           grade,
-                           class_grade,
-                           std,
-                           class_high_grade,
-                           subject_credit,
-                           class_type,
-                           r_score])
+        if re_take != "yes":
+            foundDuplicate = False
+            with open('.data/scores.csv', mode='r', newline='') as csv_file:
+                check_subject = csv.DictReader(csv_file)   
+                for row in check_subject:
+                    if row['nickname'].lower() == nickname.lower() and row['subject'].lower() == subject.lower():    
+                        foundDuplicate = True
+                        break
+
+            if foundDuplicate:
+                score_data = {
+                    "nickname": nickname,
+                    "subject": subject,
+                    "grade": grade,
+                    "class_grade": class_grade,
+                    "class_std": std,
+                    "class_high_grade": class_high_grade,
+                    "credits": subject_credit,
+                    "science": class_type,
+                    "r_score": r_score,
+                    "password": password
+                }
+                return render_template("subject_exist.html", score_data=score_data)
+
+        with open('.data/scores.csv', mode='a', newline='') as csv_file:
+            writer = csv.writer(csv_file)
+            writer.writerow([
+                nickname,
+                subject,
+                grade,
+                class_grade,
+                std,
+                class_high_grade,
+                subject_credit,
+                class_type,
+                r_score
+            ])
 
         with open('.data/scores.csv', mode='r', newline='') as csv_file:
-            reader = csv.DictReader(csv_file, delimiter=',')
-            rows, found_user, global_list = values_to_list(reader, username, verified=False)     
+            reader = csv.DictReader(csv_file)
+            rows, found_user, global_list = values_to_list(reader, username, verified=False)   
 
         if not found_user:
             return render_template("missing_score.html")        
