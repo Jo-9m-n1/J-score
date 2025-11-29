@@ -1,0 +1,196 @@
+{% extends "layout.html" %}
+
+{% block title %}
+
+<title>What is J-Score</title>
+
+{% endblock %}
+
+{% block scripts %}
+
+<script src="../static/jscore.js" defer></script>
+
+{% endblock %}
+
+{% block body %}
+
+<main>
+    <h1>What is J-score?</h1>
+    <p>
+        Welcome to J-score! This website provides an summarized overview of the Normal Distribution and its subtopics, 
+        such as the Z-Score, probability with the Normal Distribution, and the R-Score. The R-Score is 
+        especially interesting since it is widely used in CEGEPs in Quebec to assess academic performance, 
+        and it is difficult for students to calculate. Fortunately, we have built tools that can 
+        accurately predict the probability of getting into a university program based on a student's 
+        current R-Score, along with an R-Score calculator!
+    </p>
+    <section>
+        <h2>Section 1: Some definitions!</h2>
+        
+            <h3>Variance </h3>
+            
+            <span class="image_text">
+                <p>
+                    A variance shows how far values spread from the mean, which is the average of a sample 
+                    set. The variance is found by averaging squared differences from that mean. It's squared 
+                    to make large deviations count more, highlighting datasets with wide spread.
+                </p>
+                <img src="../static/varianceFormula.png" alt="Image of variance formula" width="570" height="234">
+            </span>
+        
+            <h3>Standard deviation </h3>
+            
+            <span class="image_text">
+                <img src="../static/standarddeviationFormula.png" alt="Image of standard deviation formula" width="401" height="109">
+                <p>
+                    The standard deviation is the most common measure of data variability. A small
+                    standard deviation means that the data points are clustered near the mean, 
+                    showing a low variability. A large standard deviation means that the data is widely 
+                    spread out. The empirical rule states that 68% of all data falls within a standard 
+                    deviation of the mean.
+                </p>
+            </span>
+
+            <h3>Standard Normal Distribution </h3>
+            <span class="image_text">
+                <p>
+                    A standard normal distribution is a bell shape chart where most values cluster near the mean 
+                    and fewer appear at the extremes. It's has a mean of 0 and a standard deviation of 1. A useful 
+                    rule of thumb is the 68-95-99.7 rule: about 68% of values lie within one standard deviation 
+                    of the mean, ~95% within two, and ~99.7% within three. This is assuming that the data are approximately 
+                    near the mean. This lets use probabilities and compare results fairly across classes or tests.
+                </p>
+                <img src="../static/bellCurveDark.svg" alt="Image of the standard normal distribution graph">
+            </span>
+
+    </section>
+
+    <section>
+        <h2>Section 2: Z-Score (Standard Score)</h2>
+        <p>
+            The Z-Score measures how many standard deviations a chosen data point is above or 
+            below the mean.
+        </p>
+        <span class="image_text">            
+            <p>
+                The Z-Score allows us to compare data. By converting each data point to Z-Scores, 
+                we can see how far away each data point is located from the standard deviation. 
+                A positive Z-Score indicates that the chosen data is above the average and a 
+                negative means it is below.
+            </p>
+            <img src="../static/zscoreFormula.png" alt="Image of Z-Score formula" width="403" height="151"> 
+        </span>
+
+    </section>
+
+    <section>
+        <h2>Section 3: Application in the Admissions Calculator</h2>
+        <span class="image_text">
+            <img src="../static/bellCurveProbability.png" alt="Graph of R-Score Probability" width="630" height="353"> 
+            <p>
+                Our admissions calculator uses the Z-Score to calculate your chances of getting
+                in to your dream college. We use the properties of a normal distribution, assuming 
+                that the the mean is 0.025 below the historical cut-off score and standard deviation is 0.75. 
+                Once you input your R-Score, our calculator standardizes it into a Z-Score. This Z-Score is then mapped
+                to a percentile on the standard cure, providing you with a statistically approximated
+                probability.
+            </p>
+        </span>
+        <p>
+            <b>Example:</b> In the graph, we used an example R-Score of 30.025 as the mean. If a student has an R-Score of 30.75, 
+            this is approximately one standard deviation above the mean. In a normal distribution, one standard deviation above 
+            the mean corresponds to 34.1% of the area. Because he is already above the mean, we add the 50% below the mean. This 
+            means the student is around the 84th percentile, so he has roughly an 84.1% chance of being above the required R-Score of 30.025.
+        </p>
+        <p><a href="{{ url_for('admissions') }}">Calculate Your Probability!</a></p>
+    </section>
+
+    <section>
+        <h2> Section 4: R-Score </h2>
+        <p>The R-Score is equal to:</p>
+        <img class="center" src="../static/rscoreFormula.png" alt="R-Score formula" />
+        
+        <p>Here's what every variable means:</p>
+
+        <b>Z = the Z-Score for a course:</b>
+        <ul>
+            <li>This is found using (the course grade - the course mean) / the course standard deviation</li>
+        </ul>
+
+        <b>IFGZ or ISGZ = l'indicateur de la force du groupe (indicator of the strength of the group)</b>
+        <ul>
+            <li>This variable is defined as how good are the high school marks of the students in a <i>CEGEP</i> class.</li>
+            <li>Students in the course are given high school <b>Z-Scores</b>, which are abased on their academic performance in ministerial high 
+                school courses.</li>
+            <li>The <i>IFGZ</i> is the average of these high school <b>Z-Scores</b>.</li>
+            <li>The range of this value is around [-1.5, 1.5]</li>
+            <li>A higher <b>ISGZ</b> indicates that the course or group tends to have lower averages or tougher grading, which raises everyone's 
+                R-Scores slightly to maintain fairness and consistency across colleges.</li>
+        </ul>
+
+        <b>IDGZ = l'indicateur de la dispersion du groupe (indicator of the dispersity of the group)</b>
+        <ul>
+            <li>This variable measures the dispersion of the high school <b>Z-Scores</b> of a student compared to their classmates for a course. It's 
+                he standard deviation of high-school <b>Z-Scores</b>.</li>
+            <li>In other words, it measures how diverse the highest marks of students in a <i>CEGEP</i> class.</li>
+            <li>The range of this value is around [0, 1.5].</li>
+            <li>A higher <b>IDGZ</b> means that your classmates, on average, performed very well before entering that course. In other words, you're 
+                in a stronger group.</li>
+        </ul>
+
+        <b>The two mysterious 5 constants</b>
+        <ul>
+            <li>The first 5 (the "+ 5") reduces the possibility of a negative value in the score, while the second 5 (the "* 5") increases the scale 
+                of the score.</li>
+            <li>The R-Score range is [0, 50] but most fall into [15, 35].</li>
+            <li>Grades below 50 are not considered in calculating the average and the standard deviation for a grade distribution.</li>
+        </ul>
+
+        <h3>Why is it difficult to calculate an <i>accurate</i> R-Score?</h3>
+        <p>
+        The <i>IFGZ</i> and <i>IDGZ</i> are the <b>only</b> constants that are difficult to find without the prior data from High School. This data 
+        is protected by the Ministry of Education and the <i>Bureau de coopération interuniversitaire (BCI).</i> Therefore, these variables vary 
+        tremendously. As students, we cannot get these exact values and without those exact numbers, you can only estimate your R-Score.
+        </p>
+
+        <h3>How do we estimate your R-Score?</h3>
+
+        <ul>
+            <li>The <b>IDGZ</b> is determined by the College class taken.</li> 
+            <li>If a student took a science concentration course for their program, the student is rewarded a higher <b>IDGZ</b>. It's because it's 
+                highly probable that the students taking that science class has higher overall grades. These grades usually don't have much difference 
+                from the average and the standard deviation is kept relatively low.</li> 
+            <li>If a student took a general education class, such as english, french, humanities, and gym, then they will have a lower <b>IDGZ</b> 
+                value. It's very probable that the students in that specific class come from any program, where student's overall grade is very varied. 
+                This means that the standard deviation is higher than a science class.</li>
+            <li>The <b>ISGZ</b> is determined by three variables: a guess done by the user of the class's high school average, an average high school 
+                grade in the province, and the average standard deviation in the province. It's using the <b>Z-Score</b> formula, which helps determine 
+                whether the class performed stronger or weaker than the average Quebec student group, which is then reflected in the <b>ISGZ</b> 
+                adjustment.</li>
+        </ul>
+        <p>
+            <a href="{{ url_for('r_score') }}">Calculate your R-score!</a>
+        </p>
+        <img class="center" src="../static/scienceScore.png" alt="Graph of R-Scores of Dawson Science Students" />
+    </section>
+</main>
+
+{% endblock %}
+
+{% block footer %}
+    <b>Citations:</b>
+    <ul>
+        <li>The images of the variance formula, standard deviation formula, Z-Score formula, and standard normal distribution (figure 1) are
+        the J-score authors own-work made using <a href="https://www.overleaf.com/project">LaTeX.</a></li>
+        <li>The image of the standard normal distribution is from this <a href="https://wumbo.net/concepts/standard-normal-distribution/">source</a>, used
+        under fair dealing for educational purposes.</li>
+        <li>The image of the R-Score of Dawson Science Students is from this <a href="https://www.dawsoncollege.qc.ca/health-science/R-Score/">source</a>, used
+        under fair dealing for educational purposes.</li>
+    </ul>
+    <b>Information Sources:</b>
+    <ul>
+        <li><a href="https://quetudesinfo.vercel.app/whatiscegep/therscore">QUÉtudes-info!</a></li>
+        <li><a href="https://en.wikipedia.org/wiki/R_score">Wikipedia</a></li>
+        <li>Probability and Statistics Dawson College Booklet by G. McArthur and R. Acteson</li>
+    </ul>
+{% endblock %}

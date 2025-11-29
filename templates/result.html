@@ -1,0 +1,63 @@
+{% extends "layout.html" %}
+
+{% block title %}
+
+<title>Your r-score</title>
+
+{% endblock %}
+
+{% block body %}
+
+<main>
+    <h1>{{ display_message }}</h1>
+    <p>
+        Please note that the R-Score is an approximate value
+    </p>
+    <table>
+        <caption>Your calculated R-Scores for each class</caption>
+        <thead>
+            <tr>
+                <th scope="col">Subject</th>
+                <th scope="col">Grade</th>
+                <th scope="col">Class average</th>
+                <th scope="col">Class std. deviation</th>
+                <th scope="col">Class highschool grade</th>
+                <th scope="col">Subject credits</th>
+                <th scope="col">Science class</th>
+                <th scope="col">R-Score</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in past_score %}
+            <tr>
+                <th scope="row">{{ row[1] }}</th>
+                <td> {{ row[2] }} </td>
+                <td> {{ row[3] }} </td>
+                <td> {{ row[4] }} </td>
+                <td> {{ row[5] }} </td>
+                <td> {{ row[6] }} </td>
+                <td> {{ row[7] }} </td>
+                <td> {{ row[8] }} </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <th scope="row" colspan="7">Global R-Score</th>
+                <td> {{ global_score }} </td>
+            </tr>
+        </tfoot>
+    </table>
+    <form action="{{ url_for('remove_last_score') }}" method="post">
+        <input type="hidden" id="username" name="username" value="{{ username }}" />
+        <button type="submit">Remove previous score</button>
+    </form>
+    <p>
+        <a href="{{ url_for('r_score') }}">Calculate the R-score of another class!</a>
+    </p>
+    <p>
+        <a href="{{ url_for('index')}}">Find out how it is calculated!</a>
+    </p>
+</main>
+
+{% endblock %}

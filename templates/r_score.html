@@ -1,0 +1,128 @@
+{% extends "layout.html" %}
+
+{% block title %}
+
+<title>Calculate your r-score</title>
+
+{% endblock %}
+
+{% block body %}
+
+<main>
+    <form action="result" method="post">
+        <section class="nickname"> 
+            <h2>What's your username?</h2>
+                <p>
+                    <label for="nickname">Answer:</label>
+                    <input type="text" id="nickname" name="nickname" placeholder="Optional">
+                </p>
+        </section>
+        <section class="password"> 
+            <h2>What's your password?</h2>
+                <p>
+                    <label for="password">Answer:</label>
+                    <input type="password" id="password" name="password" placeholder="Optional">
+                </p>
+        </section>
+        <p>
+        Forgot your password? <a href="{{ url_for('password') }}">Find your password!</a>
+        </p>
+        <p>
+            R-score can be calculated without an account. However, your R-score will not be save.
+        </p>
+        <p>
+            Don't have an account? <a href="{{ url_for('signup') }}">Create one!</a>
+        </p>
+        <section class="subject"> 
+            <h2>What's the name of the subject?</h2>
+                <p>
+                    <label for="subject">Answer:</label>
+                    <input type="text" id="subject" name="subject"  placeholder="E&M" required>
+                </p>
+        </section>
+        <section class="grade">
+            <h2>What grade did you earn in the class?</h2>
+                <p>
+                    <label for="grade">Answer:</label>
+                    <input type="number" id="grade" name="grade" min="0" step="0.1" max="100" placeholder="0-100" required> %
+                </p>
+        </section>
+        <section class="class_grade">
+            <h2>What was the class average grade (mean)?</h2>
+                <p>
+                    <label for="class_grade">Answer:</label>
+                    <input type="number" id="class_grade" name="class_grade" min="0" step="0.1" max="100" placeholder="0-100" required> %
+                </p>
+        </section>
+        <section class="class_std">
+            <h2>What was the class's standard deviation?</h2>
+                <p>
+                    <label for="class_std">Answer:</label>
+                    <input type="number" id="class_std" name="class_std" min="0" step="0.1" max="50" placeholder="0-50" required> %
+                </p>
+        </section>
+        <section class="class_high_grade">
+            <h2>What do you think is the class's highschool average?</h2>
+                <p>
+                    <label for="class_high_grade">Answer:</label>
+                    <input type="number" id="class_high_grade" name="class_high_grade" min="0" step="0.1" max="100" placeholder="0-100"> %
+                </p>
+        </section>
+        <section class="credits">
+            <h2>How many credits was that class worth?</h2>
+                <p>
+                    <label for="credits">Answer:</label>
+                    <select id="credits" name="credits">
+                        <option value="">Select credits</option>
+                        <option value="1.00">1.00 credit (2h class/week)</option>
+                        <option value="2.00">2.00 credits (3h class/week)</option>
+                        <option value="2.33">2.33 credits (4h class/week)</option>
+                        <option value="2.66">2.66 credits (5h class/week)</option>
+                    </select>
+                </p>
+        </section>
+        <section class="science">
+            <h2>Is it a science course? (e.g. Programming, Mechanics, etc)</h2>
+                <p>
+                    <input type="radio" id="No" name="science" value="No" required>
+                    <label for="0">No</label>
+                    <input type="radio" id="Yes" name="science" value="Yes" required>
+                    <label for="1">Yes</label>
+                </p>
+        </section>
+        <input type="hidden" name="re_take" value="no" />
+        <button type="submit">Submit</button>
+    </form>
+</main>
+
+{% endblock %}
+
+{% block footer %}
+
+<form action="{{ url_for('suggestion_result') }}" method="post">
+    <fieldset>
+        <legend>Suggestions or critiques for the website!</legend>
+        <section class="name"> 
+            <p>
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" placeholder="Bob" required>
+            </p>
+        </section>
+        <section class="email">
+            <p>
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" placeholder="bob.parkins@dawsoncollege.qc.ca" size="30"
+                required />
+            </p>
+        </section>
+        <section class="suggestion">
+            <p>
+                <label for="suggestion">Enter your suggestion:</label>
+                <textarea id="suggestion" name="suggestion" rows="10" cols="64" required></textarea>
+            </p>
+        </section>
+        <button type="submit">Submit</button>
+    </fieldset>
+</form>
+
+{% endblock %}

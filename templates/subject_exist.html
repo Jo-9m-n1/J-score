@@ -1,0 +1,22 @@
+{% extends "layout.html" %}
+
+{% block title %}
+<title>Subject already exists</title>
+{% endblock %}
+
+{% block body %}
+<main>
+    <h1>You already have a calculated R-score for {{ score_data["subject"] }}.</h1>
+    <form action="{{ url_for('result') }}" method="post">
+        {% for key, value in score_data.items() %}
+            <input type="hidden" name="{{ key }}" value="{{ value }}" />
+        {% endfor %}
+        <input type="hidden" name="re_take" value="yes" />
+        Did you retake the course? <button type="submit">Click me!</button>
+    </form>
+    
+    <form action="{{ url_for('r_score') }}" method="get">
+        Did you make a mistake? <button type="submit">Go back!</button>
+    </form>
+</main>
+{% endblock %}

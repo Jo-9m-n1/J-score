@@ -1,0 +1,31 @@
+{% extends "layout.html" %}
+
+{% block title %}
+
+<title>Check your r-score</title>
+
+{% endblock %}
+
+{% block body %}
+
+<main>
+    <form action="your_r_score" method="post">
+        <section class="nickname"> 
+            <h2>What's your username?</h2>
+                <p>
+                    <label for="nickname">Answer:</label>
+                    <input type="text" id="nickname" name="nickname" placeholder="Bob1234" required>
+                </p>
+        </section>
+        <section class="password"> 
+            <h2>What's your password?</h2>
+                <p>
+                    <label for="password">Answer:</label>
+                    <input type="password" id="password" name="password" required>
+                </p>
+        </section>
+        <button type="submit">Submit</button>
+    </form>
+</main>
+
+{% endblock %}

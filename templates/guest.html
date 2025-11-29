@@ -1,0 +1,15 @@
+{% extends "layout.html" %}
+
+{% block title %}
+
+<title>Guestbook</title>
+
+{% endblock %}
+
+{% block body %}
+<p>
+    Thank you {{ nickname }} from {{ country }}!
+    <p>
+        <a href="{{ url_for('guestbook') }}">Check your submissions!</a>
+    </p>
+{% endblock %}
