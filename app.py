@@ -53,7 +53,7 @@ def result():
         class_high_grade = float(request.form.get("class_high_grade"))
         subject_credit = float(request.form.get("credits"))
         class_type = request.form.get("science")
-        nickname = request.form.get("nickname").strip()
+        nickname = encrypt(request.form.get("nickname").strip())
         password = encrypt(request.form.get("password"))
         print("password")
         
@@ -88,6 +88,7 @@ def result():
 
             if foundDuplicate:
                 password = decrypt(password)
+                nickname = decrypt(nickname)
                 score_data = {
                     "nickname": nickname,
                     "subject": subject,
@@ -125,7 +126,7 @@ def result():
         
         global_score = globalScore(global_list)
         display_message = (f"Your latest calculated r-score for {subject} is {r_score}")
-
+        nickname = decrypt(nickname)
         return render_template("result.html", display_message=display_message, past_score=rows, global_score=global_score, username=nickname)
     
     except:
@@ -138,13 +139,13 @@ def check_r_score():
 @app.route("/your_r_score", methods=["POST"])
 def your_r_score():
     try:
-        nickname = request.form.get("nickname")
-        password = request.form.get("password")
+        nickname = encrypt(request.form.get("nickname"))
+        password = encrypt(request.form.get("password"))
         username = None
         with open('.data/login.csv', mode='r', newline='') as csv_file:
             login = csv.DictReader(csv_file, delimiter=',')
             for row in login:
-                if row['nickname'].lower() == nickname.lower() and row['password'] == encrypt(password):
+                if row['nickname'].lower() == nickname.lower() and row['password'] == password:
                     username = nickname
                     break
             
@@ -161,6 +162,7 @@ def your_r_score():
         global_score = globalScore(global_list)
 
         display_message = "These are your R-scores"
+        nickname = decrypt(nickname)
         return render_template("result.html", display_message=display_message, past_score=rows, global_score=global_score, username=nickname)
     
     except:
@@ -173,8 +175,8 @@ def signup():
 @app.route("/signup_result", methods=["POST"])
 def signup_result():
     name = request.form.get("name")
-    nickname = request.form.get("nickname").strip()
-    password = request.form.get("password")
+    nickname = encrypt(request.form.get("nickname").strip())
+    password = encrypt(request.form.get("password"))
     required = ["name", "nickname", "password"]
     missing_field = []
     for field in required:
@@ -193,7 +195,9 @@ def signup_result():
             
     with open(csv_path, 'a', newline='') as csv_file:
         data = csv.writer(csv_file, delimiter=',')
-        data.writerow([name, nickname, encrypt(password)])
+        data.writerow([name, nickname, password])
+
+    nickname = decrypt(nickname)
     return render_template("welcome.html", username=nickname)
 
 @app.route("/welcome")
@@ -258,7 +262,7 @@ def password():
 @app.route("/password_result", methods=["POST"])
 def password_result():
     try:
-        username = request.form.get("nickname")
+        username = encrypt(request.form.get("nickname"))
         name = request.form.get("name")
 
         with open('.data/login.csv', mode='r', newline='') as csv_file:
@@ -273,7 +277,7 @@ def password_result():
             
 @app.route("/remove_last_score", methods=["POST"])
 def remove_last_score():
-    user_name = request.form.get("username").strip()
+    user_name = encrypt(request.form.get("username").strip())
     fieldnames = []
     user_rows = []
 
@@ -307,7 +311,7 @@ def remove_last_score():
         global_score = "0"
 
     display_message = "Updated!"  
-
+    user_name = decrypt(user_name)
     return render_template("result.html", display_message=display_message, past_score=item_row, global_score=global_score, username=user_name)
 
 def globalScore(global_list):
