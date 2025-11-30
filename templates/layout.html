@@ -7,16 +7,17 @@
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@exampledev/new.css@1/new.min.css">
         <link rel="stylesheet" href="https://newcss.net/theme/night.css">
         <link href="../static/style.css" rel="stylesheet" type="text/css">
+        <link rel="icon" type="image/x-icon" href="../static/favicon.ico"">
         {% block scripts %}{% endblock %}
     </head>
     <header>
         <h1>
-            <a href="{{ url_for('index')}}">J-Score*</a>
+            <a href="{{ url_for('index')}}">J-score*</a>
         </h1>
         <nav>
             <ul>
                 <li><a href="{{ url_for('signup') }}">Sign up</a></li>
-                <li><a href="{{ url_for('admissions') }}">Go to Admissions Page</a></li>
+                <li><a href="{{ url_for('admissions') }}">Admission Probability Calculator</a></li>
                 <li><a href="{{ url_for('r_score') }}">Calculate your R-Score</a></li>
                 <li><a href="{{ url_for('check_r_score') }}">Check your R-Score</a></li>
             </ul>
