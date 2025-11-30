@@ -69,7 +69,9 @@ fieldset {
 
 img {
     transition: box-shadow 0.3s ease-out;
-    padding: 10px;
+    transition: transform 0.25s ease;
+    margin: 10px;
+    border: 20px;
     outline: none;
 }
 
@@ -80,7 +82,11 @@ img:hover {
         0 0 1000px rgba(34, 96, 219, 0.2);
 }
 
-p {
+img.zoom {
+    transform: scale(1.02)
+}
+
+p, li, b {
     line-height: 1.7;
     font-size: 20px;
 }
