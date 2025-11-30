@@ -13,11 +13,11 @@ def index():
 
 @app.route("/r_score")
 def r_score():
-    return render_template("r_score.html")
+    return render_template("/r_score/r_score.html")
 
 @app.route("/admissions")
 def admissions():
-    return render_template("admissions.html")
+    return render_template("/admissions/admissions.html")
 
 @app.route("/result_ad", methods=["POST"])
 def result_ad():
@@ -29,8 +29,11 @@ def result_ad():
         Z = (user_grade - (cut_off - 0.025)) / 0.75
         cdf = (0.5 * (1 + math.erf(Z / math.sqrt(2))))*100
         chance = round(cdf, 2)
-    
-        return render_template("result_ad.html", 
+
+        if not university or not major:
+            raise Exception
+
+        return render_template("/admissions/result_ad.html", 
                                 chance=chance, 
                                 university=university, 
                                 major=major, 
@@ -38,9 +41,10 @@ def result_ad():
                                 cut_off=cut_off)
     
     except:
-        error_message = "You have missing values!"
-        submit_again = "Submit Again"
-        return render_template("error.html", error_message=error_message, url=url_for('admissions'), submit_again=submit_again)
+        return render_template("error.html", 
+                               error_message="You have missing values!", 
+                               url=url_for('admissions'), 
+                               submit_again="Submit Again")
 
 @app.route("/result", methods=["POST"])
 def result():
@@ -55,14 +59,16 @@ def result():
         class_type = request.form.get("science")
         nickname = encrypt(request.form.get("nickname").strip())
         password = encrypt(request.form.get("password"))
-        print("password")
         
         if class_type == "No":
             IDGZ = 1.19
         elif class_type == "Yes":
             IDGZ = 0.75
         else:
-            return render_template("error.html", error_message="You didn't answer the question: Is this a science course? Please try again.", url=url_for('r_score'), submit_again="Submit Again")
+            return render_template("error.html", 
+                                   error_message="You didn't answer the question: Is this a science course? Please try again.", 
+                                   url=url_for('r_score'), 
+                                   submit_again="Submit Again")
         ISGZ = (class_high_grade-73.64)/14.12
         r_score = round((((grade - class_grade + 0.45)/std)*IDGZ+ISGZ+5)*5, 2)
 
@@ -75,7 +81,7 @@ def result():
                     break
         
         if username == None:
-            return render_template("error_username.html", subject=subject, r_score=r_score)
+            return render_template("r_score/result_no_username.html", subject=subject, r_score=r_score)
         
         if re_take != "yes":
             foundDuplicate = False
@@ -101,9 +107,9 @@ def result():
                     "r_score": r_score,
                     "password": password
                 }
-                return render_template("subject_exist.html", score_data=score_data)
+                return render_template("r_score/subject_exist.html", score_data=score_data)
 
-        with open('.data/scores.csv', mode='a', newline='') as csv_file:
+        with open('.data/scores.csv', mode='a', newline='', encoding='utf-8') as csv_file:
             writer = csv.writer(csv_file)
             writer.writerow([
                 nickname,
@@ -117,24 +123,24 @@ def result():
                 r_score
             ])
 
-        with open('.data/scores.csv', mode='r', newline='') as csv_file:
+        with open('.data/scores.csv', mode='r', newline='', encoding='utf-8') as csv_file:
             reader = csv.DictReader(csv_file)
             rows, found_user, global_list = values_to_list(reader, username, verified=False)   
-
-        if not found_user:
-            return render_template("missing_score.html")        
         
         global_score = globalScore(global_list)
         display_message = (f"Your latest calculated r-score for {subject} is {r_score}")
         nickname = decrypt(nickname)
-        return render_template("result.html", display_message=display_message, past_score=rows, global_score=global_score, username=nickname)
+        return render_template("r_score/result.html", display_message=display_message, past_score=rows, global_score=global_score, username=nickname)
     
     except:
-        return render_template("error.html", error_message="You have missing values! Please try again.", url=url_for('r_score'), submit_again="Submit Again")
+        return render_template("error.html", 
+                               error_message="You have missing values! Please try again.", 
+                               url=url_for('r_score'), 
+                               submit_again="Submit Again")
 
 @app.route("/check_r_score")
 def check_r_score():
-    return render_template("check_r_score.html")
+    return render_template("/check_r_score/check_r_score.html")
 
 @app.route("/your_r_score", methods=["POST"])
 def your_r_score():
@@ -142,35 +148,44 @@ def your_r_score():
         nickname = encrypt(request.form.get("nickname"))
         password = encrypt(request.form.get("password"))
         username = None
-        with open('.data/login.csv', mode='r', newline='') as csv_file:
+        with open('.data/login.csv', mode='r', newline='', encoding='utf-8') as csv_file:
             login = csv.DictReader(csv_file, delimiter=',')
             for row in login:
                 if row['nickname'].lower() == nickname.lower() and row['password'] == password:
                     username = nickname
                     break
             
-            if username == None:
-                return render_template("account_not_exist.html")
+            if not username:
+                return render_template("error.html",
+                                    error_message="Your account doesn't exist, or your login information is incorrect. Go to the Sign Up page to create an account.", 
+                                    url=url_for('check_r_score'),
+                                    submit_again="Try Again")
             
-        with open('.data/scores.csv', mode='r', newline='') as csv_file:
+        with open('.data/scores.csv', mode='r', newline='', encoding='utf-8') as csv_file:
             reader = csv.DictReader(csv_file, delimiter=',')
             rows, found_user, global_list = values_to_list(reader, username, verified=False) 
 
         if not found_user:
-            return render_template("missing_score.html")
+            return render_template("error.html",
+                                    error_message="You do not have any calculated R-Score!", 
+                                    url=url_for('r_score'),
+                                    submit_again="Calculate your R-Score")
         
         global_score = globalScore(global_list)
 
         display_message = "These are your R-scores"
         nickname = decrypt(nickname)
-        return render_template("result.html", display_message=display_message, past_score=rows, global_score=global_score, username=nickname)
+        return render_template("r_score/result.html", display_message=display_message, past_score=rows, global_score=global_score, username=nickname)
     
     except:
-        render_template("error_check.html")
+        return render_template("error.html",
+                                error_message="Something went wrong. Please try again.", 
+                                url=url_for('check_r_score'),
+                                submit_again="Try Again")
 
 @app.route("/signup")
 def signup():
-    return render_template("signup.html")
+    return render_template("/signup/signup.html")
 
 @app.route("/signup_result", methods=["POST"])
 def signup_result():
@@ -182,24 +197,28 @@ def signup_result():
     for field in required:
         if not request.form.get(field).replace(" ", ""):
             missing_field.append(field)
-    if len(missing_field) != 0:
-        return render_template("missing_error.html", missing_field=missing_field)
+    if missing_field:
+        error_message = "You are missing: " + " & ".join(missing_field) + "."
+        return render_template("error.html",
+                                error_message=error_message, 
+                                url=url_for('signup'),
+                                submit_again="Try Again")
     
     csv_path = '.data/login.csv'
 
-    with open(csv_path, mode='r', newline='') as csv_file:
+    with open(csv_path, mode='r', newline='', encoding='utf-8') as csv_file:
         reader = csv.DictReader(csv_file)
         for row in reader:
             if row["nickname"].lower() == nickname.lower():
                 nickname = decrypt(nickname)
-                return render_template("account_exists.html", nickname=nickname)
+                return render_template("signup/account_exists.html", nickname=nickname)
             
-    with open(csv_path, 'a', newline='') as csv_file:
+    with open(csv_path, 'a', newline='', encoding='utf-8') as csv_file:
         data = csv.writer(csv_file, delimiter=',')
         data.writerow([name, nickname, password])
 
     nickname = decrypt(nickname)
-    return render_template("welcome.html", username=nickname)
+    return render_template("signup/welcome.html", username=nickname)
 
 @app.route("/welcome")
 def welcome():
@@ -213,13 +232,17 @@ def guest():
         if not request.form.get(field).replace(" ", ""):
             missing_field.append(field)
     if len(missing_field) != 0:
-        return render_template("missing_error_sign.html", missing_field=missing_field)
+        error_message = "You are missing: " + " & ".join(missing_field) + "."
+        return render_template("error.html",
+                                error_message=error_message, 
+                                url=url_for('admissions'),
+                                submit_again="Try Again")
     else:
         global nickname
         nickname = request.form.get("nickname")
         country = request.form.get("country")
         greeting = request.form.get("greeting")
-        return render_template("guest.html",
+        return render_template("admissions/guest.html",
                                 nickname=nickname,
                                 country=country,
                                 greeting=greeting)
@@ -227,12 +250,7 @@ def guest():
 @app.route("/guestbook")
 def guestbook():
     user_ans.append(nickname)
-    print(user_ans)
-    return render_template("guestbook.html", user_ans=user_ans)
-
-@app.route("/suggestion", methods=["POST"])
-def suggestion():
-    return render_template("suggestion.html")
+    return render_template("admissions/guestbook.html", user_ans=user_ans)
     
 @app.route("/suggestion_result", methods=["POST"])
 def suggestion_result():
@@ -244,21 +262,26 @@ def suggestion_result():
     suggestion = request.form.get("suggestion")
 
     if not email.endswith("@dawsoncollege.qc.ca"):
-        return render_template("error.html", error_message="Your email didn't end with @dawsoncollege.qc.ca. You're not a Dawson student! Please try again.")
+        return render_template("error.html",
+                            error_message="Your email didn't end with @dawsoncollege.qc.ca. You're not a Dawson student! Please try again.", 
+                            url=url_for('r_score'),
+                            submit_again="Try Again")
     for field in required_fields:
         if not request.form.get(field):
-            return render_template("error.html", error_message="You have missing answers. Please try again.")
-
-    return render_template("suggestion_result.html", name=name, suggestion=suggestion)
+            return render_template("error.html",
+                                error_message="You have missing answers. Please try again.", 
+                                url=url_for('r_score'),
+                                submit_again="Try Again")
+    return render_template("r_score/suggestion_result.html", name=name, suggestion=suggestion)
 
 @app.route("/suggestion_leaderboard")
 def suggestion_leaderboard():
     user_suggestions.append(suggestion)
-    return render_template("suggestion_leaderboard.html", user_suggestions=user_suggestions)
+    return render_template("r_score/suggestion_leaderboard.html", user_suggestions=user_suggestions)
 
 @app.route("/password")
 def password():
-    return render_template("password.html")
+    return render_template("signup/password.html")
 
 @app.route("/password_result", methods=["POST"])
 def password_result():
@@ -266,15 +289,21 @@ def password_result():
         username = encrypt(request.form.get("nickname"))
         name = request.form.get("name")
 
-        with open('.data/login.csv', mode='r', newline='') as csv_file:
+        with open('.data/login.csv', mode='r', newline='', encoding='utf-8') as csv_file:
             reader = csv.DictReader(csv_file)
             for row in reader:
                 if row["nickname"].lower() == username.lower() and row["name"].lower() == name.lower():
                     password = row["password"]
-                    return render_template("password_result.html", password=decrypt(password))
-        return render_template("account_not_exist.html")
+                    return render_template("signup/password_result.html", password=decrypt(password))
+        return render_template("error.html",
+                            error_message="Your account does not exist.", 
+                            url=url_for('password'),
+                            submit_again="Submit Again")
     except:
-        return render_template("error_pass.html")
+        return render_template("error.html",
+                            error_message="Something went wrong. Try again.", 
+                            url=url_for('password'),
+                            submit_again="Submit Again")
             
 @app.route("/remove_last_score", methods=["POST"])
 def remove_last_score():
@@ -282,7 +311,7 @@ def remove_last_score():
     fieldnames = []
     user_rows = []
 
-    with open('.data/scores.csv', mode='r', newline='') as csv_file:
+    with open('.data/scores.csv', mode='r', newline='', encoding='utf-8') as csv_file:
         reader = csv.DictReader(csv_file, delimiter=',')
         fieldnames = reader.fieldnames
         rows = list(reader)
@@ -295,7 +324,7 @@ def remove_last_score():
             if user_rows[-1] == row:
                 rows.remove(row)
 
-    with open('.data/scores.csv', mode='w', newline='') as csv_file:
+    with open('.data/scores.csv', mode='w', newline='', encoding='utf-8') as csv_file:
         writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(rows)
@@ -304,7 +333,10 @@ def remove_last_score():
     item_row, found_user, global_list = values_to_list(rows, user_name, verified=False) 
 
     if not found_user:
-        return render_template("missing_score.html")    
+        return render_template("error.html",
+                                error_message="You do not have any calculated R-Score!", 
+                                url=url_for('r_score'),
+                                submit_again="Calculate your R-Score")     
         
     if global_list:
         global_score = globalScore(global_list)
@@ -313,7 +345,7 @@ def remove_last_score():
 
     display_message = "Updated!"  
     user_name = decrypt(user_name)
-    return render_template("result.html", display_message=display_message, past_score=item_row, global_score=global_score, username=user_name)
+    return render_template("r_score/result.html", display_message=display_message, past_score=item_row, global_score=global_score, username=user_name)
 
 def globalScore(global_list):
     weighted_sum = 0
