@@ -2,22 +2,23 @@
 
 {% block title %}
 
-<title>Calculate your r-score</title>
+<title>Calculate your R-Score</title>
 
 {% endblock %}
 
 {% block body %}
 
 <main>
+    <h1>Calculate your R-Score:</h1>
     <form action="result" method="post">
-        <section class="nickname"> 
+        <section class="nickname">
             <h2>What's your username?</h2>
                 <p>
                     <label for="nickname">Answer:</label>
                     <input type="text" id="nickname" name="nickname" placeholder="Optional">
                 </p>
         </section>
-        <section class="password"> 
+        <section class="password">
             <h2>What's your password?</h2>
                 <p>
                     <label for="password">Answer:</label>
@@ -28,16 +29,16 @@
         Forgot your password? <a href="{{ url_for('password') }}">Find your password!</a>
         </p>
         <p>
-            R-score can be calculated without an account. However, your R-score will not be save.
+            R-Score can be calculated without an account. However, your R-Score will not be save.
         </p>
         <p>
             Don't have an account? <a href="{{ url_for('signup') }}">Create one!</a>
         </p>
-        <section class="subject"> 
+        <section class="subject">
             <h2>What's the name of the subject?</h2>
                 <p>
                     <label for="subject">Answer:</label>
-                    <input type="text" id="subject" name="subject"  placeholder="E&M" required>
+                    <input type="text" id="subject" name="subject"  placeholder="Discrete Math" required>
                 </p>
         </section>
         <section class="grade">
@@ -86,11 +87,11 @@
                 <p>
                     <input type="radio" id="No" name="science" value="No" required>
                     <label for="0">No</label>
-                    <input type="radio" id="Yes" name="science" value="Yes" required>
+                    <input type="radio" id="Yes" name="science" value="Yes" required> 
                     <label for="1">Yes</label>
                 </p>
         </section>
-        <input type="hidden" name="re_take" value="no" />
+        <input type="hidden" name="re_take" value="no">
         <button type="submit">Submit</button>
     </form>
 </main>
@@ -98,31 +99,31 @@
 {% endblock %}
 
 {% block footer %}
-
-<form action="{{ url_for('suggestion_result') }}" method="post">
-    <fieldset>
-        <legend>Suggestions or critiques for the website!</legend>
-        <section class="name"> 
-            <p>
-                <label for="name">Name:</label>
-                <input type="text" id="name" name="name" placeholder="Bob" required>
-            </p>
-        </section>
-        <section class="email">
-            <p>
-                <label for="email">Email:</label>
-                <input type="email" id="email" name="email" placeholder="bob.parkins@dawsoncollege.qc.ca" size="30"
-                required />
-            </p>
-        </section>
-        <section class="suggestion">
-            <p>
-                <label for="suggestion">Enter your suggestion:</label>
-                <textarea id="suggestion" name="suggestion" rows="10" cols="64" required></textarea>
-            </p>
-        </section>
-        <button type="submit">Submit</button>
-    </fieldset>
-</form>
-
+<footer>
+    <form action="{{ url_for('suggestion_result') }}" method="post">
+        <fieldset>
+            <legend>Suggestions or critiques for the website!</legend>
+            <section class="name"> 
+                <p>
+                    <label for="name">Name:</label>
+                    <input type="text" id="name" name="name" placeholder="Bob" required>
+                </p>
+            </section>
+            <section class="email">
+                <p>
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" placeholder="bob.parkins@dawsoncollege.qc.ca" size="30"
+                    required />
+                </p>
+            </section>
+            <section class="suggestion">
+                <p>
+                    <label for="suggestion">Enter your suggestion:</label>
+                    <textarea id="suggestion" name="suggestion" rows="10" cols="128" required placeholder="Hey, why is the R-Score calculator showing -2 for my result?"></textarea>
+                </p>
+            </section>
+            <button type="submit">Submit</button>
+        </fieldset>
+    </form>
+</footer>
 {% endblock %}

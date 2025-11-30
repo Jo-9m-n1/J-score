@@ -7,9 +7,8 @@
 {% endblock %}
 
 {% block body %}
+<h1>Thank you {{ nickname }} from {{ country }}!</h1>
 <p>
-    Thank you {{ nickname }} from {{ country }}!
-    <p>
-        <a href="{{ url_for('guestbook') }}">Check your submissions!</a>
-    </p>
+    <a href="{{ url_for('guestbook') }}">Check your submissions!</a>
+</p>
 {% endblock %}

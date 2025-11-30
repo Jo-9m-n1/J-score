@@ -11,21 +11,19 @@
     </head>
     <header>
         <h1>
-            <a href="{{ url_for('index')}}">J-score*</a>
+            <a href="{{ url_for('index')}}">J-Score*</a>
         </h1>
         <nav>
             <ul>
                 <li><a href="{{ url_for('signup') }}">Sign up</a></li>
                 <li><a href="{{ url_for('admissions') }}">Go to Admissions Page</a></li>
-                <li><a href="{{ url_for('r_score') }}">Calculate your R-score</a></li>
-                <li><a href="{{ url_for('check_r_score') }}">Check your R-score</a></li>
+                <li><a href="{{ url_for('r_score') }}">Calculate your R-Score</a></li>
+                <li><a href="{{ url_for('check_r_score') }}">Check your R-Score</a></li>
             </ul>
         </nav>
     </header>
     <body>
         {% block body %}{% endblock %}
     </body>
-    <footer>
-        {% block footer %}{% endblock %}
-    </footer>
+    {% block footer %}{% endblock %}
 </html>

@@ -8,13 +8,13 @@
 
 {% block body %}
 <main>
+    <h1>Admission Probability Calculator:</h1>
     <form action="{{ url_for('result_ad') }}" method="post">
-        <section class="q1"> 
+        <section class="q1">
             <h2>Your dream university</h2>
                 <p>
                     <label for="q1">Answer:</label>
                     <input type="text" id="q1" name="university" placeholder="McGill" required>
-                
                 </p>
         </section>
         <section class="q2">
@@ -25,20 +25,20 @@
                 </p>
         </section>
         <section class="q3">
-            <h2>Last year's R-score cutoff</h2>
+            <h2>Last year's R-Score cutoff</h2>
                 <p>
                     <label for="q3">Answer:</label>
                     <input type="number" id="q3" name="r_score" step="any" placeholder="28" required>
                 </p>
         </section>
         <section class="q4">
-            <h2>Your global R-score</h2>
+            <h2>Your global R-Score</h2>
                 <p>
                     <label for="q4">Answer:</label>
                     <input type="number" id="q4" name="user_grade" step="any" placeholder="35" required>
                 </p>
                 <p>
-                    You do not know your global R-score? <a href="{{ url_for('r_score') }}">Calculate it now!</a>
+                    You do not know your global R-Score? <a href="{{ url_for('r_score') }}">Calculate it now!</a>
                 </p>
         </section>
         <button type="submit">Submit</button>
@@ -48,28 +48,30 @@
 {% endblock %}
 
 {% block footer %}
-<form action="{{ url_for('guest') }}" method="post">
-    <fieldset>
-        <legend>Add your name to the guestbook</legend>
-        <section class="nickname"> 
-                <p>
-                    <label for="nickname">Your nickname:</label>
-                    <input type="text" id="q1" name="nickname" placeholder="Bob" required>
-                
-                </p>
-        </section>
-        <section class="country">
-                <p>
-                    <label for="country">Your country:</label>
-                    <input type="text" id="q2" placeholder="Canada" name="country" required>
-                </p>
-        </section>
-        <section class="greeting">
-                <p>
-                    <label for="greeting">Greeting:</label>
-                    <textarea id="greeting" name="greeting" rows="10" cols="64" required></textarea>
-                </p>
-        </section>
-        <button type="submit">Sign</button>
-    </fieldset>
+<footer>
+    <form action="{{ url_for('guest') }}" method="post">
+        <fieldset>
+            <legend>Add your name to the guestbook</legend>
+            <section class="nickname">
+                    <p>
+                        <label for="nickname">Your nickname:</label>
+                        <input type="text" id="nickname" name="nickname" placeholder="Bob" required>
+                    </p>
+            </section>
+            <section class="country">
+                    <p>
+                        <label for="country">Your country:</label>
+                        <input type="text" id="country" placeholder="Canada" name="country" required>
+                    </p>
+            </section>
+            <section class="greeting">
+                    <p>
+                        <label for="greeting">Greeting:</label>
+                        <textarea id="greeting" name="greeting" rows="10" cols="128" required placeholder="Hello World!"></textarea>
+                    </p>
+            </section>
+            <button type="submit">Sign</button>
+        </fieldset>
+    </form>
+</footer>
 {% endblock %}
