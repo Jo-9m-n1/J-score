@@ -10,6 +10,7 @@ user_suggestions = []
 nickname = None
 suggestion = None
 
+
 @app.route("/")
 def index():
     return render_template("index.html")
@@ -32,7 +33,7 @@ def result_ad():
         major = request.form.get("major")
         user_grade = float(request.form.get("user_grade"))
         cut_off = float(request.form.get("r_score"))
-        
+
         Z = (user_grade - (cut_off - 0.025)) / 0.75
         cdf = (0.5 * (1 + math.erf(Z / math.sqrt(2))))*100
         chance = round(cdf, 2)
@@ -401,14 +402,13 @@ def values_to_list(rows, username=None, verified=True):
             ])
             if row['r_score'] and row['credits']:
                 global_list.append([float(row['r_score']), float(row['credits'])])
-
     return item_rows, found_user, global_list
 
 
 def encrypt(text, shift=3):
     result = ""
     for i, char in enumerate(text):
-        new_char = chr((ord(char)+shift+i)%256)
+        new_char = chr((ord(char) + shift + i) % 256)
         result += new_char      
     return result[::-1]
 
