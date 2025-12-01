@@ -4,20 +4,26 @@ import csv
 
 app = Flask(__name__)
 
+
 user_ans = []
 user_suggestions = []
+nickname = None
+suggestion = None
 
 @app.route("/")
 def index():
     return render_template("index.html")
 
+
 @app.route("/r_score")
 def r_score():
     return render_template("/r_score/r_score.html")
 
+
 @app.route("/admissions")
 def admissions():
     return render_template("/admissions/admissions.html")
+
 
 @app.route("/result_ad", methods=["POST"])
 def result_ad():
@@ -26,12 +32,13 @@ def result_ad():
         major = request.form.get("major")
         user_grade = float(request.form.get("user_grade"))
         cut_off = float(request.form.get("r_score"))
+        
         Z = (user_grade - (cut_off - 0.025)) / 0.75
         cdf = (0.5 * (1 + math.erf(Z / math.sqrt(2))))*100
         chance = round(cdf, 2)
 
         if not university or not major:
-            raise Exception
+            raise ValueError("Missing university or major")
 
         return render_template("/admissions/result_ad.html", 
                                 chance=chance, 
@@ -40,11 +47,12 @@ def result_ad():
                                 user_grade=user_grade, 
                                 cut_off=cut_off)
     
-    except:
+    except (ValueError, TypeError):
         return render_template("error.html", 
                                error_message="You have missing values!", 
                                url=url_for('admissions'), 
                                submit_again="Submit Again")
+
 
 @app.route("/result", methods=["POST"])
 def result():
@@ -66,7 +74,8 @@ def result():
             IDGZ = 0.75
         else:
             return render_template("error.html", 
-                                   error_message="You didn't answer the question: Is this a science course? Please try again.", 
+                                   error_message=("You didn't answer the question: "
+                                   "Is this a science course? Please try again."), 
                                    url=url_for('r_score'), 
                                    submit_again="Submit Again")
         ISGZ = (class_high_grade-73.64)/14.12
@@ -80,7 +89,7 @@ def result():
                     username = nickname
                     break
         
-        if username == None:
+        if username is None:
             return render_template("r_score/result_no_username.html", subject=subject, r_score=r_score)
         
         if re_take != "yes":
@@ -132,15 +141,17 @@ def result():
         nickname = decrypt(nickname)
         return render_template("r_score/result.html", display_message=display_message, past_score=rows, global_score=global_score, username=nickname)
     
-    except:
+    except (ValueError, TypeError, FileNotFoundError):
         return render_template("error.html", 
                                error_message="You have missing values! Please try again.", 
                                url=url_for('r_score'), 
                                submit_again="Submit Again")
 
+
 @app.route("/check_r_score")
 def check_r_score():
     return render_template("/check_r_score/check_r_score.html")
+
 
 @app.route("/your_r_score", methods=["POST"])
 def your_r_score():
@@ -177,15 +188,17 @@ def your_r_score():
         nickname = decrypt(nickname)
         return render_template("r_score/result.html", display_message=display_message, past_score=rows, global_score=global_score, username=nickname)
     
-    except:
+    except (ValueError, TypeError, FileNotFoundError):
         return render_template("error.html",
                                 error_message="Something went wrong. Please try again.", 
                                 url=url_for('check_r_score'),
                                 submit_again="Try Again")
 
+
 @app.route("/signup")
 def signup():
     return render_template("/signup/signup.html")
+
 
 @app.route("/signup_result", methods=["POST"])
 def signup_result():
@@ -220,9 +233,11 @@ def signup_result():
     nickname = decrypt(nickname)
     return render_template("signup/welcome.html", username=nickname)
 
+
 @app.route("/welcome")
 def welcome():
-    render_template("welcome.html")
+    return render_template("welcome.html")
+
 
 @app.route("/guest", methods=["POST"])
 def guest():
@@ -246,12 +261,14 @@ def guest():
                                 nickname=nickname,
                                 country=country,
                                 greeting=greeting)
-    
+
+
 @app.route("/guestbook")
 def guestbook():
     user_ans.append(nickname)
     return render_template("admissions/guestbook.html", user_ans=user_ans)
-    
+
+
 @app.route("/suggestion_result", methods=["POST"])
 def suggestion_result():
     global suggestion
@@ -274,14 +291,17 @@ def suggestion_result():
                                 submit_again="Try Again")
     return render_template("r_score/suggestion_result.html", name=name, suggestion=suggestion)
 
+
 @app.route("/suggestion_leaderboard")
 def suggestion_leaderboard():
     user_suggestions.append(suggestion)
     return render_template("r_score/suggestion_leaderboard.html", user_suggestions=user_suggestions)
 
+
 @app.route("/password")
 def password():
     return render_template("signup/password.html")
+
 
 @app.route("/password_result", methods=["POST"])
 def password_result():
@@ -299,12 +319,13 @@ def password_result():
                             error_message="Your account does not exist.", 
                             url=url_for('password'),
                             submit_again="Submit Again")
-    except:
+    except (ValueError, TypeError, FileNotFoundError):
         return render_template("error.html",
                             error_message="Something went wrong. Try again.", 
                             url=url_for('password'),
                             submit_again="Submit Again")
-            
+
+
 @app.route("/remove_last_score", methods=["POST"])
 def remove_last_score():
     user_name = encrypt(request.form.get("username").strip())
@@ -347,6 +368,7 @@ def remove_last_score():
     user_name = decrypt(user_name)
     return render_template("r_score/result.html", display_message=display_message, past_score=item_row, global_score=global_score, username=user_name)
 
+
 def globalScore(global_list):
     weighted_sum = 0
     total_weight = 0
@@ -356,6 +378,7 @@ def globalScore(global_list):
         total_weight += weight
     global_score = round(weighted_sum/total_weight, 2)
     return global_score
+
 
 def values_to_list(rows, username=None, verified=True):
     item_rows = []
@@ -381,12 +404,14 @@ def values_to_list(rows, username=None, verified=True):
 
     return item_rows, found_user, global_list
 
+
 def encrypt(text, shift=3):
     result = ""
     for i, char in enumerate(text):
         new_char = chr((ord(char)+shift+i)%256)
         result += new_char      
     return result[::-1]
+
 
 def decrypt(text, shift=3):
     text = text[::-1]
