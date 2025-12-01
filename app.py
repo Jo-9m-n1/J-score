@@ -74,31 +74,38 @@ def result():
         elif class_type == "Yes":
             IDGZ = 0.75
         else:
+            error_message=("You didn't answer the question: "
+            "Is this a science course? Please try again.")
             return render_template("error.html", 
-                                   error_message=("You didn't answer the question: "
-                                   "Is this a science course? Please try again."), 
+                                   error_message=error_message, 
                                    url=url_for('r_score'), 
                                    submit_again="Submit Again")
         ISGZ = (class_high_grade-73.64)/14.12
-        r_score = round((((grade - class_grade + 0.45)/std)*IDGZ+ISGZ+5)*5, 2)
+        r_score = round(
+            (((grade - class_grade + 0.45)/std)*IDGZ+ISGZ+5)*5, 2
+            )
 
         username = None
         with open('.data/login.csv', mode='r', newline='') as csv_file:
             login = csv.DictReader(csv_file, delimiter=',')
             for row in login:
-                if row['nickname'].lower() == nickname.lower() and row['password'] == password:
+                if (row['nickname'].lower() == nickname.lower() 
+                        and row['password'] == password):
                     username = nickname
                     break
         
         if username is None:
-            return render_template("r_score/result_no_username.html", subject=subject, r_score=r_score)
+            return render_template("r_score/result_no_username.html", 
+                                   subject=subject, 
+                                   r_score=r_score)
         
         if re_take != "yes":
             foundDuplicate = False
             with open('.data/scores.csv', mode='r', newline='') as csv_file:
                 check_subject = csv.DictReader(csv_file)   
                 for row in check_subject:
-                    if row['nickname'].lower() == nickname.lower() and row['subject'].lower() == subject.lower():    
+                    if (row['nickname'].lower() == nickname.lower() and
+                            row['subject'].lower() == subject.lower()):    
                         foundDuplicate = True
                         break
 
@@ -117,7 +124,10 @@ def result():
                     "r_score": r_score,
                     "password": password
                 }
-                return render_template("r_score/subject_exist.html", score_data=score_data)
+                return render_template(
+                    "r_score/subject_exist.html", 
+                    score_data=score_data
+                    )
 
         with open('.data/scores.csv', mode='a', newline='', encoding='utf-8') as csv_file:
             writer = csv.writer(csv_file)
@@ -135,16 +145,28 @@ def result():
 
         with open('.data/scores.csv', mode='r', newline='', encoding='utf-8') as csv_file:
             reader = csv.DictReader(csv_file)
-            rows, found_user, global_list = values_to_list(reader, username, verified=False)   
+            rows, found_user, global_list = values_to_list(
+                reader, 
+                username, 
+                verified=False
+                )   
         
         global_score = globalScore(global_list)
-        display_message = (f"Your latest calculated r-score for {subject} is {r_score}")
+        display_message = (f"Your latest calculated r-score for "
+                           f"{subject} is {r_score}")
         nickname = decrypt(nickname)
-        return render_template("r_score/result.html", display_message=display_message, past_score=rows, global_score=global_score, username=nickname)
+        return render_template(
+            "r_score/result.html", 
+            display_message=display_message, 
+            past_score=rows, 
+            global_score=global_score, 
+            username=nickname
+            )
     
     except (ValueError, TypeError, FileNotFoundError):
         return render_template("error.html", 
-                               error_message="You have missing values! Please try again.", 
+                               error_message="You have missing values! "
+                               "Please try again.", 
                                url=url_for('r_score'), 
                                submit_again="Submit Again")
 
@@ -160,16 +182,21 @@ def your_r_score():
         nickname = encrypt(request.form.get("nickname"))
         password = encrypt(request.form.get("password"))
         username = None
-        with open('.data/login.csv', mode='r', newline='', encoding='utf-8') as csv_file:
+        with open('.data/login.csv', mode='r', newline='', 
+                  encoding='utf-8') as csv_file:
             login = csv.DictReader(csv_file, delimiter=',')
             for row in login:
-                if row['nickname'].lower() == nickname.lower() and row['password'] == password:
+                if (row['nickname'].lower() == nickname.lower() 
+                        and row['password'] == password):
                     username = nickname
                     break
             
             if not username:
+                error_message=("Your account doesn't exist, or "
+                "your login information is incorrect. Go to the "
+                "Sign Up page to create an account.")
                 return render_template("error.html",
-                                    error_message="Your account doesn't exist, or your login information is incorrect. Go to the Sign Up page to create an account.", 
+                                    error_message=error_message, 
                                     url=url_for('check_r_score'),
                                     submit_again="Try Again")
             
@@ -178,8 +205,9 @@ def your_r_score():
             rows, found_user, global_list = values_to_list(reader, username, verified=False) 
 
         if not found_user:
+            error_message="You do not have any calculated R-Score!"
             return render_template("error.html",
-                                    error_message="You do not have any calculated R-Score!", 
+                                    error_message=error_message, 
                                     url=url_for('r_score'),
                                     submit_again="Calculate your R-Score")
         
@@ -187,11 +215,16 @@ def your_r_score():
 
         display_message = "These are your R-scores"
         nickname = decrypt(nickname)
-        return render_template("r_score/result.html", display_message=display_message, past_score=rows, global_score=global_score, username=nickname)
+        return render_template("r_score/result.html", 
+                               display_message=display_message, 
+                               past_score=rows, 
+                               global_score=global_score, 
+                               username=nickname)
     
     except (ValueError, TypeError, FileNotFoundError):
         return render_template("error.html",
-                                error_message="Something went wrong. Please try again.", 
+                                error_message="Something went wrong. " \
+                                              "Please try again.", 
                                 url=url_for('check_r_score'),
                                 submit_again="Try Again")
 
@@ -225,7 +258,10 @@ def signup_result():
         for row in reader:
             if row["nickname"].lower() == nickname.lower():
                 nickname = decrypt(nickname)
-                return render_template("signup/account_exists.html", nickname=nickname)
+                return render_template(
+                    "signup/account_exists.html", 
+                    nickname=nickname
+                    )
             
     with open(csv_path, 'a', newline='', encoding='utf-8') as csv_file:
         data = csv.writer(csv_file, delimiter=',')
@@ -280,23 +316,29 @@ def suggestion_result():
     suggestion = request.form.get("suggestion")
 
     if not email.endswith("@dawsoncollege.qc.ca"):
+        error_message=("Your email didn't end with @dawsoncollege.qc.ca. "
+        "You're not a Dawson student! Please try again.")
         return render_template("error.html",
-                            error_message="Your email didn't end with @dawsoncollege.qc.ca. You're not a Dawson student! Please try again.", 
+                            error_message=error_message, 
                             url=url_for('r_score'),
                             submit_again="Try Again")
     for field in required_fields:
         if not request.form.get(field):
+            error_message="You have missing answers. Please try again."
             return render_template("error.html",
-                                error_message="You have missing answers. Please try again.", 
+                                error_message=error_message, 
                                 url=url_for('r_score'),
                                 submit_again="Try Again")
-    return render_template("r_score/suggestion_result.html", name=name, suggestion=suggestion)
+    return render_template("r_score/suggestion_result.html", 
+                           name=name, 
+                           suggestion=suggestion)
 
 
 @app.route("/suggestion_leaderboard")
 def suggestion_leaderboard():
     user_suggestions.append(suggestion)
-    return render_template("r_score/suggestion_leaderboard.html", user_suggestions=user_suggestions)
+    return render_template("r_score/suggestion_leaderboard.html", 
+                           user_suggestions=user_suggestions)
 
 
 @app.route("/password")
@@ -310,19 +352,28 @@ def password_result():
         username = encrypt(request.form.get("nickname"))
         name = request.form.get("name")
 
-        with open('.data/login.csv', mode='r', newline='', encoding='utf-8') as csv_file:
+        with open('.data/login.csv', mode='r', newline='', 
+                  encoding='utf-8') as csv_file:
             reader = csv.DictReader(csv_file)
             for row in reader:
-                if row["nickname"].lower() == username.lower() and row["name"].lower() == name.lower():
+                if (row["nickname"].lower() == username.lower() 
+                    and row["name"].lower() == name.lower()):
                     password = row["password"]
-                    return render_template("signup/password_result.html", password=decrypt(password))
+                    return render_template(
+                        "signup/password_result.html", 
+                        password=decrypt(password)
+                        )
+                
+        error_message="Your account does not exist."
         return render_template("error.html",
-                            error_message="Your account does not exist.", 
+                            error_message=error_message, 
                             url=url_for('password'),
                             submit_again="Submit Again")
+    
     except (ValueError, TypeError, FileNotFoundError):
+        error_message="Something went wrong. Try again."
         return render_template("error.html",
-                            error_message="Something went wrong. Try again.", 
+                            error_message=error_message, 
                             url=url_for('password'),
                             submit_again="Submit Again")
 
@@ -333,7 +384,8 @@ def remove_last_score():
     fieldnames = []
     user_rows = []
 
-    with open('.data/scores.csv', mode='r', newline='', encoding='utf-8') as csv_file:
+    with open('.data/scores.csv', mode='r', newline='', 
+              encoding='utf-8') as csv_file:
         reader = csv.DictReader(csv_file, delimiter=',')
         fieldnames = reader.fieldnames
         rows = list(reader)
@@ -346,17 +398,21 @@ def remove_last_score():
             if user_rows[-1] == row:
                 rows.remove(row)
 
-    with open('.data/scores.csv', mode='w', newline='', encoding='utf-8') as csv_file:
+    with open('.data/scores.csv', mode='w', newline='', 
+              encoding='utf-8') as csv_file:
         writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(rows)
     
 
-    item_row, found_user, global_list = values_to_list(rows, user_name, verified=False) 
+    item_row, found_user, global_list = values_to_list(
+        rows, user_name, verified=False
+    ) 
 
     if not found_user:
+        error_message="You do not have any calculated R-Score!"
         return render_template("error.html",
-                                error_message="You do not have any calculated R-Score!", 
+                                error_message=error_message, 
                                 url=url_for('r_score'),
                                 submit_again="Calculate your R-Score")     
         
@@ -367,7 +423,11 @@ def remove_last_score():
 
     display_message = "Updated!"  
     user_name = decrypt(user_name)
-    return render_template("r_score/result.html", display_message=display_message, past_score=item_row, global_score=global_score, username=user_name)
+    return render_template("r_score/result.html", 
+                           display_message=display_message, 
+                           past_score=item_row, 
+                           global_score=global_score, 
+                           username=user_name)
 
 
 def globalScore(global_list):
@@ -401,7 +461,10 @@ def values_to_list(rows, username=None, verified=True):
                 row['r_score'],
             ])
             if row['r_score'] and row['credits']:
-                global_list.append([float(row['r_score']), float(row['credits'])])
+                global_list.append(
+                    [float(row['r_score']), float(row['credits'])]
+                )
+                
     return item_rows, found_user, global_list
 
 
