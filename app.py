@@ -35,18 +35,18 @@ def result_ad():
         cut_off = float(request.form.get("r_score"))
 
         Z = (user_grade - (cut_off - 0.025)) / 0.75
-        cdf = (0.5 * (1 + math.erf(Z / math.sqrt(2))))*100
+        cdf = (0.5 * (1 + math.erf(Z / math.sqrt(2)))) * 100
         chance = round(cdf, 2)
 
         if not university or not major:
             raise ValueError("Missing university or major")
 
         return render_template("/admissions/result_ad.html", 
-                                chance=chance, 
-                                university=university, 
-                                major=major, 
-                                user_grade=user_grade, 
-                                cut_off=cut_off)
+                               chance=chance, 
+                               university=university, 
+                               major=major, 
+                               user_grade=user_grade, 
+                               cut_off=cut_off)
     
     except (ValueError, TypeError):
         return render_template("error.html", 
@@ -74,8 +74,9 @@ def result():
         elif class_type == "Yes":
             IDGZ = 0.75
         else:
-            error_message=("You didn't answer the question: "
-                           "Is this a science course? Please try again.")
+            error_message = ("You didn't answer the question: "
+                             "Is this a science course? "
+                             "Please try again.")
             return render_template("error.html", 
                                    error_message=error_message, 
                                    url=url_for('r_score'), 
@@ -83,11 +84,12 @@ def result():
         
         ISGZ = (class_high_grade-73.64)/14.12
         r_score = round(
-            (((grade - class_grade + 0.45)/std)*IDGZ+ISGZ+5)*5, 2
+            (((grade - class_grade + 0.45) / std) * IDGZ + ISGZ + 5) * 5, 2
         )
 
         username = None
-        with open('.data/login.csv', mode='r', newline='') as csv_file:
+        with open('.data/login.csv', mode='r', 
+                  newline='') as csv_file:
             login = csv.DictReader(csv_file, delimiter=',')
             for row in login:
                 if (row['nickname'].lower() == nickname.lower() 
@@ -102,7 +104,8 @@ def result():
         
         if re_take != "yes":
             foundDuplicate = False
-            with open('.data/scores.csv', mode='r', newline='') as csv_file:
+            with open('.data/scores.csv', mode='r', 
+                      newline='') as csv_file:
                 check_subject = csv.DictReader(csv_file)   
                 for row in check_subject:
                     if (row['nickname'].lower() == nickname.lower() and
@@ -145,7 +148,8 @@ def result():
                 r_score
             ])
 
-        with open('.data/scores.csv', mode='r', newline='', encoding='utf-8') as csv_file:
+        with open('.data/scores.csv', mode='r', newline='', 
+                  encoding='utf-8') as csv_file:
             reader = csv.DictReader(csv_file)
             rows, found_user, global_list = values_to_list(
                 reader, 
@@ -163,7 +167,7 @@ def result():
             past_score=rows, 
             global_score=global_score, 
             username=nickname
-            )
+        )
     
     except (ValueError, TypeError, FileNotFoundError):
         return render_template("error.html", 
@@ -210,7 +214,7 @@ def your_r_score():
             ) 
 
         if not found_user:
-            error_message="You do not have any calculated R-Score!"
+            error_message = "You do not have any calculated R-Score!"
             return render_template("error.html",
                                     error_message=error_message, 
                                     url=url_for('r_score'),
@@ -228,10 +232,10 @@ def your_r_score():
     
     except (ValueError, TypeError, FileNotFoundError):
         return render_template("error.html",
-                                error_message="Something went wrong. "
-                                              "Please try again.", 
-                                url=url_for('check_r_score'),
-                                submit_again="Try Again")
+                               error_message="Something went wrong. "
+                                             "Please try again.", 
+                               url=url_for('check_r_score'),
+                               submit_again="Try Again")
 
 
 @app.route("/signup")
@@ -252,9 +256,9 @@ def signup_result():
     if missing_field:
         error_message = "You are missing: " + " & ".join(missing_field) + "."
         return render_template("error.html",
-                                error_message=error_message, 
-                                url=url_for('signup'),
-                                submit_again="Try Again")
+                               error_message=error_message, 
+                               url=url_for('signup'),
+                               submit_again="Try Again")
     
     csv_path = '.data/login.csv'
 
@@ -268,7 +272,8 @@ def signup_result():
                     nickname=nickname
                     )
             
-    with open(csv_path, 'a', newline='', encoding='utf-8') as csv_file:
+    with open(csv_path, 'a', newline='', 
+              encoding='utf-8') as csv_file:
         data = csv.writer(csv_file, delimiter=',')
         data.writerow([name, nickname, password])
 
@@ -291,24 +296,25 @@ def guest():
     if len(missing_field) != 0:
         error_message = "You are missing: " + " & ".join(missing_field) + "."
         return render_template("error.html",
-                                error_message=error_message, 
-                                url=url_for('admissions'),
-                                submit_again="Try Again")
+                               error_message=error_message, 
+                               url=url_for('admissions'),
+                               submit_again="Try Again")
     else:
         global nickname
         nickname = request.form.get("nickname")
         country = request.form.get("country")
         greeting = request.form.get("greeting")
         return render_template("admissions/guest.html",
-                                nickname=nickname,
-                                country=country,
-                                greeting=greeting)
+                               nickname=nickname,
+                               country=country,
+                               greeting=greeting)
 
 
 @app.route("/guestbook")
 def guestbook():
     user_ans.append(nickname)
-    return render_template("admissions/guestbook.html", user_ans=user_ans)
+    return render_template("admissions/guestbook.html",
+                           user_ans=user_ans)
 
 
 @app.route("/suggestion_result", methods=["POST"])
@@ -322,18 +328,19 @@ def suggestion_result():
 
     if not email.endswith("@dawsoncollege.qc.ca"):
         error_message=("Your email didn't end with @dawsoncollege.qc.ca. "
-        "You're not a Dawson student! Please try again.")
+                       "You're not a Dawson student! Please try again.")
         return render_template("error.html",
-                            error_message=error_message, 
-                            url=url_for('r_score'),
-                            submit_again="Try Again")
+                               error_message=error_message, 
+                               url=url_for('r_score'),
+                               submit_again="Try Again")
     for field in required_fields:
         if not request.form.get(field):
             error_message="You have missing answers. Please try again."
             return render_template("error.html",
-                                error_message=error_message, 
-                                url=url_for('r_score'),
-                                submit_again="Try Again")
+                                   error_message=error_message, 
+                                   url=url_for('r_score'),
+                                   submit_again="Try Again")
+        
     return render_template("r_score/suggestion_result.html", 
                            name=name, 
                            suggestion=suggestion)
@@ -367,20 +374,20 @@ def password_result():
                     return render_template(
                         "signup/password_result.html", 
                         password=decrypt(password)
-                        )
+                    )
                 
         error_message="Your account does not exist."
         return render_template("error.html",
-                            error_message=error_message, 
-                            url=url_for('password'),
-                            submit_again="Submit Again")
+                               error_message=error_message, 
+                               url=url_for('password'),
+                               submit_again="Submit Again")
     
     except (ValueError, TypeError, FileNotFoundError):
         error_message="Something went wrong. Please try again."
         return render_template("error.html",
-                            error_message=error_message, 
-                            url=url_for('password'),
-                            submit_again="Submit Again")
+                               error_message=error_message, 
+                               url=url_for('password'),
+                               submit_again="Submit Again")
 
 
 @app.route("/remove_last_score", methods=["POST"])
@@ -421,9 +428,9 @@ def remove_last_score():
     if not found_user:
         error_message="You do not have any calculated R-Score!"
         return render_template("error.html",
-                                error_message=error_message, 
-                                url=url_for('r_score'),
-                                submit_again="Calculate your R-Score")     
+                               error_message=error_message, 
+                               url=url_for('r_score'),
+                               submit_again="Calculate your R-Score")     
         
     if global_list:
         global_score = globalScore(global_list)
