@@ -228,7 +228,7 @@ def your_r_score():
     
     except (ValueError, TypeError, FileNotFoundError):
         return render_template("error.html",
-                                error_message="Something went wrong. " \
+                                error_message="Something went wrong. "
                                               "Please try again.", 
                                 url=url_for('check_r_score'),
                                 submit_again="Try Again")
@@ -376,7 +376,7 @@ def password_result():
                             submit_again="Submit Again")
     
     except (ValueError, TypeError, FileNotFoundError):
-        error_message="Something went wrong. Try again."
+        error_message="Something went wrong. Please try again."
         return render_template("error.html",
                             error_message=error_message, 
                             url=url_for('password'),
@@ -399,9 +399,13 @@ def remove_last_score():
         for row in rows:
             if row['nickname'].lower() == user_name.lower():
                 user_rows.append(row)
-        for row in rows:
-            if user_rows[-1] == row:
-                rows.remove(row)
+        
+        if user_rows:
+            try:
+                item_remove = user_rows[-1]
+                rows.remove(item_remove)
+            except ValueError:
+                pass
 
     with open('.data/scores.csv', mode='w', newline='', 
               encoding='utf-8') as csv_file:
