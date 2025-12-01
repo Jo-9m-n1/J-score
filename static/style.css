@@ -83,7 +83,7 @@ img:hover {
 }
 
 img.zoom {
-    transform: scale(1.02)
+    transform: scale(1.02);
 }
 
 p, li, b {
