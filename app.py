@@ -75,15 +75,16 @@ def result():
             IDGZ = 0.75
         else:
             error_message=("You didn't answer the question: "
-            "Is this a science course? Please try again.")
+                           "Is this a science course? Please try again.")
             return render_template("error.html", 
                                    error_message=error_message, 
                                    url=url_for('r_score'), 
                                    submit_again="Submit Again")
+        
         ISGZ = (class_high_grade-73.64)/14.12
         r_score = round(
             (((grade - class_grade + 0.45)/std)*IDGZ+ISGZ+5)*5, 2
-            )
+        )
 
         username = None
         with open('.data/login.csv', mode='r', newline='') as csv_file:
@@ -127,9 +128,10 @@ def result():
                 return render_template(
                     "r_score/subject_exist.html", 
                     score_data=score_data
-                    )
+                )
 
-        with open('.data/scores.csv', mode='a', newline='', encoding='utf-8') as csv_file:
+        with open('.data/scores.csv', mode='a', newline='', 
+                  encoding='utf-8') as csv_file:
             writer = csv.writer(csv_file)
             writer.writerow([
                 nickname,
@@ -149,7 +151,7 @@ def result():
                 reader, 
                 username, 
                 verified=False
-                )   
+            )   
         
         global_score = globalScore(global_list)
         display_message = (f"Your latest calculated r-score for "
@@ -166,7 +168,7 @@ def result():
     except (ValueError, TypeError, FileNotFoundError):
         return render_template("error.html", 
                                error_message="You have missing values! "
-                               "Please try again.", 
+                                             "Please try again.", 
                                url=url_for('r_score'), 
                                submit_again="Submit Again")
 
@@ -193,16 +195,19 @@ def your_r_score():
             
             if not username:
                 error_message=("Your account doesn't exist, or "
-                "your login information is incorrect. Go to the "
-                "Sign Up page to create an account.")
+                               "your login information is incorrect. Go to the "
+                               "Sign Up page to create an account.")
                 return render_template("error.html",
                                     error_message=error_message, 
                                     url=url_for('check_r_score'),
                                     submit_again="Try Again")
             
-        with open('.data/scores.csv', mode='r', newline='', encoding='utf-8') as csv_file:
+        with open('.data/scores.csv', mode='r', newline='', 
+                  encoding='utf-8') as csv_file:
             reader = csv.DictReader(csv_file, delimiter=',')
-            rows, found_user, global_list = values_to_list(reader, username, verified=False) 
+            rows, found_user, global_list = values_to_list(
+                reader, username, verified=False
+            ) 
 
         if not found_user:
             error_message="You do not have any calculated R-Score!"
@@ -464,7 +469,7 @@ def values_to_list(rows, username=None, verified=True):
                 global_list.append(
                     [float(row['r_score']), float(row['credits'])]
                 )
-                
+
     return item_rows, found_user, global_list
 
 

@@ -22,9 +22,14 @@ header a {
     justify-content: space-around; 
 }
 
+footer a {
+    color: #C9C9C9;
+}
+
 header a:hover {
     background-color: #1a4eb6;
 }
+
 a:hover {
     background-color: #b4bcd2;
     color:#4b6bba;
@@ -32,7 +37,7 @@ a:hover {
 }
 
 body {
-    font-family: "Parkinsans", sans-serif;
+    font-family: Parkinsans, sans-serif;
     max-width: 1000px;
     padding: 0;
     margin: 0 auto;
@@ -47,11 +52,7 @@ footer {    /* footer was copied from the header in new.css online to extend the
 	padding-right: calc(50vw - 50%);
 }
 
-footer a {
-    color: #C9C9C9;
-}
-
-.image_text {
+.image-text {
   display: inline-flex;
   align-items: center;
   gap: 10px;
@@ -77,9 +78,9 @@ img {
 
 img:hover {
     box-shadow:
-        0 0 30px rgba(233, 245, 255, 0.4),
-        0 0 60px rgba(41, 106, 236, 0.3),
-        0 0 1000px rgba(34, 96, 219, 0.2);
+        0 0 30px rgba(233, 245, 255, 40%),
+        0 0 60px rgba(41, 106, 236, 30%),
+        0 0 1000px rgba(34, 96, 219, 20%);
 }
 
 img.zoom {
