@@ -148,9 +148,9 @@ def result():
             )
 
         ISGZ = (class_high_grade - 73.64) / 14.12
-        r_score = round(
-            (((grade - class_grade + 0.45) / std) * IDGZ + ISGZ + 5) * 5, 2
-        )
+        r_score = round((
+            ((grade - class_grade + 0.45) / std) * IDGZ + ISGZ + 5
+        ) * 5, 2)
 
         username = None
         with open(".data/login.csv", mode="r", newline="") as csv_file:
@@ -165,8 +165,8 @@ def result():
 
         if username is None:
             return render_template(
-                "r_score/result_no_username.html", 
-                subject=subject, 
+                "r_score/result_no_username.html",
+                subject=subject,
                 r_score=r_score
             )
 
@@ -349,27 +349,22 @@ def signup_result():
 
     csv_path = ".data/login.csv"
 
-    with open(csv_path, mode="r", newline="", 
-              encoding="utf-8") as csv_file:
+    with open(csv_path, mode="r", newline="", encoding="utf-8") as csv_file:
         reader = csv.DictReader(csv_file)
         for row in reader:
             if row["nickname"].lower() == nickname.lower():
                 nickname = decrypt(nickname)
                 return render_template(
-                    "signup/account_exists.html", 
+                    "signup/account_exists.html",
                     nickname=nickname
                 )
 
-    with open(csv_path, "a", newline="", 
-              encoding="utf-8") as csv_file:
+    with open(csv_path, "a", newline="", encoding="utf-8") as csv_file:
         data = csv.writer(csv_file, delimiter=",")
         data.writerow([name, nickname, password])
 
     nickname = decrypt(nickname)
-    return render_template(
-        "signup/welcome.html", 
-        username=nickname
-    )
+    return render_template("signup/welcome.html", username=nickname)
 
 
 @app.route("/welcome")
@@ -408,10 +403,7 @@ def guest():
 @app.route("/guestbook")
 def guestbook():
     user_ans.append(nickname)
-    return render_template(
-        "admissions/guestbook.html", 
-        user_ans=user_ans
-    )
+    return render_template("admissions/guestbook.html", user_ans=user_ans)
 
 
 @app.route("/suggestion_result", methods=["POST"])
@@ -437,8 +429,7 @@ def suggestion_result():
 
     for field in required_fields:
         if not request.form.get(field):
-            error_message = "You have missing answers. " \
-                            "Please try again."
+            error_message = "You have missing answers. " "Please try again."
             return render_template(
                 "error.html",
                 error_message=error_message,
@@ -447,9 +438,7 @@ def suggestion_result():
             )
 
     return render_template(
-        "r_score/suggestion_result.html", 
-        name=name, 
-        suggestion=suggestion
+        "r_score/suggestion_result.html", name=name, suggestion=suggestion
     )
 
 
@@ -457,7 +446,7 @@ def suggestion_result():
 def suggestion_leaderboard():
     user_suggestions.append(suggestion)
     return render_template(
-        "r_score/suggestion_leaderboard.html", 
+        "r_score/suggestion_leaderboard.html",
         user_suggestions=user_suggestions
     )
 
@@ -473,8 +462,9 @@ def password_result():
         username = encrypt(request.form.get("nickname"))
         name = request.form.get("name")
 
-        with open(".data/login.csv", mode="r", 
-                  newline="", encoding="utf-8") as csv_file:
+        with open(
+            ".data/login.csv", mode="r", newline="", encoding="utf-8"
+        ) as csv_file:
             reader = csv.DictReader(csv_file)
             for row in reader:
                 if (
@@ -483,7 +473,7 @@ def password_result():
                 ):
                     password = row["password"]
                     return render_template(
-                        "signup/password_result.html", 
+                        "signup/password_result.html",
                         password=decrypt(password)
                     )
 
@@ -511,7 +501,7 @@ def remove_last_score():
     fieldnames = []
     user_rows = []
 
-    with open(".data/scores.csv", mode="r", 
+    with open(".data/scores.csv", mode="r",
               newline="", encoding="utf-8") as csv_file:
         reader = csv.DictReader(csv_file, delimiter=",")
         fieldnames = reader.fieldnames
@@ -529,14 +519,14 @@ def remove_last_score():
             except ValueError:
                 pass
 
-    with open(".data/scores.csv", mode="w", 
+    with open(".data/scores.csv", mode="w",
               newline="", encoding="utf-8") as csv_file:
         writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(rows)
 
-    item_row, found_user, global_list = values_to_list(rows, 
-                                                       user_name, 
+    item_row, found_user, global_list = values_to_list(rows,
+                                                       user_name,
                                                        verified=False)
 
     if not found_user:
