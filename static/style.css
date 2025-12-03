@@ -96,3 +96,7 @@ p, li, b {
 textarea {
     resize: none;
 }
+
+button {
+    background-color: #2375D1;
+}
