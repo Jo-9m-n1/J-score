@@ -79,9 +79,9 @@ img {
 
 img:hover {
     box-shadow:
-        0 0 30px #d5ecff,
-        0 0 60px #296aec,
-        0 0 1000px #2260db;
+        0 0 30px #d5ecff67,
+        0 0 60px #296aec56,
+        0 0 1000px #2260db57;
 }
 
 img.zoom {
