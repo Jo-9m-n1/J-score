@@ -114,7 +114,7 @@ def result_ad():
             cut_off=cut_off,
         )
 
-    except (ValueError, TypeError):
+    except (ValueError, TypeError, AttributeError):
         return render_template(
             "error.html",
             error_message="You have missing values!",
@@ -258,7 +258,7 @@ def result():
             username=nickname,
         )
 
-    except (ValueError, TypeError, FileNotFoundError):
+    except (ValueError, TypeError, AttributeError):
         return render_template(
             "error.html",
             error_message="You have missing values! " "Please try again.",
@@ -332,7 +332,7 @@ def your_r_score():
             username=nickname,
         )
 
-    except (ValueError, TypeError, FileNotFoundError):
+    except (ValueError, TypeError, AttributeError, ZeroDivisionError):
         return render_template(
             "error.html",
             error_message="Something went wrong. " "Please try again.",
@@ -503,7 +503,7 @@ def password_result():
             submit_again="Submit Again",
         )
 
-    except (ValueError, TypeError, FileNotFoundError):
+    except (ValueError, TypeError, AttributeError):
         error_message = "Something went wrong. Please try again."
         return render_template(
             "error.html",
