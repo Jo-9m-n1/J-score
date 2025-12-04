@@ -282,7 +282,7 @@ def result():
     except (ValueError, TypeError, AttributeError):
         return render_template(
             "error.html",
-            error_message="You have missing values! " "Please try again.",
+            error_message="You have missing values! Please try again.",
             url=url_for("r_score"),
             submit_again="Submit Again",
         )
