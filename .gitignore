@@ -23,3 +23,11 @@ dist/
 
 # Mac files
 .DS_Store
+
+# Node Modules
+package-lock.json
+package.json
+node_modules
+
+# Data Files
+.data/

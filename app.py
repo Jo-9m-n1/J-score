@@ -6,6 +6,13 @@ app = Flask(__name__)
 
 
 def globalScore(global_list):
+    """
+    Calculates the weighted global R-score for a student.
+    Parameters:
+        global_list (2D list): A list of [r_score, credit].
+    Returns:
+        global_score (float): Weighted average R-score rounded to 2 decimals.
+    """
     if not global_list:
         return 0
 
@@ -23,13 +30,23 @@ def globalScore(global_list):
     return global_score
 
 
-def values_to_list(rows, username=None, verified=True):
+def values_to_list(rows, username=None):
+    """
+    Converts .csv dictionary values into a list containing ONLY the values
+    and not its key
+    Parameters:
+        rows: DictReader
+        username: username to filter their specific scores, defaults to none
+    Returns:
+        item_rows: (2D List) containing every value in the format
+        ['nickname', 'subject', ...]
+    """
     item_rows = []
     global_list = []
     found_user = False
 
     for row in rows:
-        if verified or row["nickname"] == username.lower():
+        if row["nickname"] == username.lower():
             found_user = True
             item_rows.append(
                 [
@@ -48,7 +65,6 @@ def values_to_list(rows, username=None, verified=True):
                 global_list.append(
                     [float(row["r_score"]), float(row["credits"])]
                 )
-
     return item_rows, found_user, global_list
 
 
@@ -92,6 +108,7 @@ def admissions():
 
 @app.route("/result_ad", methods=["POST"])
 def result_ad():
+    # calculates the probability of being admitted to a university course
     try:
         university = request.form.get("university")
         major = request.form.get("major")
@@ -125,6 +142,7 @@ def result_ad():
 
 @app.route("/result", methods=["POST"])
 def result():
+    # the r-score calculator and writing to csv file
     try:
         re_take = request.form.get("re_take")
         subject = request.form.get("subject").strip()
@@ -169,7 +187,7 @@ def result():
         r_score = round((
             ((grade - class_grade + 0.45) / std) * IDGZ + ISGZ + 5
         ) * 5, 2)
-
+        # verifies if username exists in login.csv
         username = None
         with open(".data/login.csv", mode="r", newline="") as csv_file:
             login = csv.DictReader(csv_file, delimiter=",")
@@ -180,14 +198,16 @@ def result():
                 ):
                     username = nickname
                     break
-
+        # will return their r-score but it'll not be saved into the
+        # scores.csv file
         if username is None:
             return render_template(
                 "r_score/result_no_username.html",
                 subject=subject,
                 r_score=r_score
             )
-
+        # this block of code checks whether a user is trying to submit an
+        # r-score for a subject they already submitted before
         if re_take != "yes":
             foundDuplicate = False
             with open(".data/scores.csv", mode="r", newline="") as csv_file:
@@ -218,7 +238,7 @@ def result():
                 return render_template(
                     "r_score/subject_exist.html", score_data=score_data
                 )
-
+        # adds the data from r-score calculator into csv
         with open(
             ".data/scores.csv", mode="a", newline="", encoding="utf-8"
         ) as csv_file:
@@ -236,13 +256,14 @@ def result():
                     r_score,
                 ]
             )
-
+        # goes to the helper function values_to_list to return a list of
+        # data to show to the user in a table
         with open(
             ".data/scores.csv", mode="r", newline="", encoding="utf-8"
         ) as csv_file:
             reader = csv.DictReader(csv_file)
             rows, found_user, global_list = values_to_list(
-                reader, username, verified=False
+                reader, username
             )
 
         global_score = globalScore(global_list)
@@ -274,10 +295,13 @@ def check_r_score():
 
 @app.route("/your_r_score", methods=["POST"])
 def your_r_score():
+    # skips submitting an r-score to see the r-score table with the overall
+    # r-score from username and password
     try:
         nickname = encrypt(request.form.get("nickname"))
         password = encrypt(request.form.get("password"))
         username = None
+        # verifies username AND password
         with open(
             ".data/login.csv", mode="r", newline="", encoding="utf-8"
         ) as csv_file:
@@ -303,12 +327,14 @@ def your_r_score():
                     submit_again="Try Again",
                 )
 
+        # goes to the helper function values_to_list to return a list
+        # of data to show to the user in a table
         with open(
             ".data/scores.csv", mode="r", newline="", encoding="utf-8"
         ) as csv_file:
             reader = csv.DictReader(csv_file, delimiter=",")
             rows, found_user, global_list = values_to_list(
-                reader, username, verified=False
+                reader, username
             )
 
         if not found_user:
@@ -348,6 +374,7 @@ def signup():
 
 @app.route("/signup_result", methods=["POST"])
 def signup_result():
+    # signup to r-score calculator to save r-score data
     name = request.form.get("name")
     nickname = encrypt(request.form.get("nickname").strip())
     password = encrypt(request.form.get("password"))
@@ -367,6 +394,7 @@ def signup_result():
 
     csv_path = ".data/login.csv"
 
+    # verifies if account already exists
     with open(csv_path, mode="r", newline="", encoding="utf-8") as csv_file:
         reader = csv.DictReader(csv_file)
         for row in reader:
@@ -376,7 +404,7 @@ def signup_result():
                     "signup/account_exists.html",
                     nickname=nickname
                 )
-
+    # write to login.csv the new account
     with open(csv_path, "a", newline="", encoding="utf-8") as csv_file:
         data = csv.writer(csv_file, delimiter=",")
         data.writerow([name, nickname, password])
@@ -476,6 +504,8 @@ def password():
 
 @app.route("/password_result", methods=["POST"])
 def password_result():
+    # allows user to remember their password if they have a valid username
+    # and name
     try:
         username = encrypt(request.form.get("nickname"))
         name = request.form.get("name")
@@ -515,16 +545,18 @@ def password_result():
 
 @app.route("/remove_last_score", methods=["POST"])
 def remove_last_score():
+    # button to remove LATEST r-score
     user_name = encrypt(request.form.get("username").strip())
     fieldnames = []
     user_rows = []
-
+    # gets all the the current data from scores.csv
     with open(".data/scores.csv", mode="r",
               newline="", encoding="utf-8") as csv_file:
         reader = csv.DictReader(csv_file, delimiter=",")
         fieldnames = reader.fieldnames
         rows = list(reader)
-
+    # appends all specific r-score rows of the user from the main list 'rows'
+    # to user_rows
     if rows:
         for row in rows:
             if row["nickname"].lower() == user_name.lower():
@@ -532,21 +564,23 @@ def remove_last_score():
 
         if user_rows:
             try:
+                # finding the last submitted r-score in user_rows from that
+                # specific user
                 item_remove = user_rows[-1]
+                # removing that specific last score from the main list 'rows'
                 rows.remove(item_remove)
             except ValueError:
                 pass
-
+    # writing the updated list into the a new csv file
     with open(".data/scores.csv", mode="w",
               newline="", encoding="utf-8") as csv_file:
         writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(rows)
-
+    # converting it to values to be displayed to the user
     item_row, found_user, global_list = values_to_list(rows,
                                                        user_name,
-                                                       verified=False)
-
+                                                       )
     if not found_user:
         error_message = "You do not have any calculated R-Score!"
         return render_template(

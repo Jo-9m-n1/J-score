@@ -5,7 +5,7 @@ nav ul {
     margin: 0;
     padding: 0;
     display: flex; 
-    justify-content: space-around; 
+    justify-content: space-around; /* https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/justify-content */
     background-color: #1a4eb6;
 }
 
@@ -19,7 +19,7 @@ header a {
     padding: 14px 16px;
     text-decoration: none;
     text-align: center;
-    justify-content: space-around; 
+    justify-content: space-around; /* https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/justify-content */
 }
 
 footer a {
@@ -43,8 +43,10 @@ body {
     margin: 0 auto;
 }
 
+/* footer was copied from the header in the online new.css to extend the borders to the edges of the screen */
+
+/* this is why we used the unexpected calc function and 'vw', 'rem' */
 footer {    
-    /* footer was copied from the header in new.css online to extend the borders to the edges of the screen */
 	background: #1a4eb6;
 	color: white;
 	padding: 2rem 1.5rem;
@@ -54,9 +56,9 @@ footer {
 }
 
 .image-text {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
 }
 
 .center {
