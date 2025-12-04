@@ -6,12 +6,19 @@ app = Flask(__name__)
 
 
 def globalScore(global_list):
+    if not global_list:
+        return 0
+
     weighted_sum = 0
     total_weight = 0
-    for item in global_list:
-        score, weight = item
+
+    for score, weight in global_list:
         weighted_sum += score * weight
         total_weight += weight
+
+    if total_weight == 0:
+        return 0
+
     global_score = round(weighted_sum / total_weight, 2)
     return global_score
 
@@ -129,6 +136,17 @@ def result():
         class_type = request.form.get("science")
         nickname = encrypt(request.form.get("nickname").strip())
         password = encrypt(request.form.get("password"))
+
+        if std == 0:
+            error_message = (
+                "the standard deviation can not be 0"
+            )
+            return render_template(
+                "error.html",
+                error_message=error_message,
+                url=url_for("r_score"),
+                submit_again="Submit Again",
+            )
 
         if class_type == "No":
             IDGZ = 1.19
