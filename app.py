@@ -72,6 +72,12 @@ def encrypt(text, shift=3):
     result = ""
     for i, char in enumerate(text):
         new_char = chr((ord(char) + shift + i) % 256)
+        # We are storing the "encrypted" password and the username
+        # by shifting its unicodes 
+        # Built in function to convert character to an unicode:
+        # https://www.w3schools.com/python/ref_func_ord.asp
+        # Built in function to convert unicode to a character:
+        # https://www.w3schools.com/python/ref_func_chr.asp
         result += new_char
     return result[::-1]
 
@@ -117,6 +123,8 @@ def result_ad():
 
         Z = (user_grade - (cut_off - 0.025)) / 0.75
         cdf = (0.5 * (1 + math.erf(Z / math.sqrt(2)))) * 100
+        # erf is an error function that is used in r-score calculations
+        # source: https://docs.python.org/3/library/math.html 
         chance = round(cdf, 2)
 
         if not university or not major:
@@ -206,7 +214,7 @@ def result():
                 subject=subject,
                 r_score=r_score
             )
-        # this block of code checks whether a user is trying to submit an
+        # this block of code checks whether a user is trying to submit a
         # r-score for a subject they already submitted before
         if re_take != "yes":
             foundDuplicate = False
