@@ -55,22 +55,24 @@ footer {
 	padding-right: calc(50vw - 50%);
 }
 
+/* image right next to text: https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/display */
 .image-text {
     display: inline-flex;
     align-items: center;
     gap: 10px;
 }
 
+/* how to center an image: https://www.w3schools.com/css/css3_image_center.asp */
 .center {
     display: block;
-    margin-left: auto;
-    margin-right: auto;
+    margin: auto;
 }
 
 fieldset {
     border: 4px solid black;
 }
 
+/* transition for box-shadow https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/transition */
 img {
     transition: box-shadow 0.3s ease-out;
     transition: transform 0.25s ease;
