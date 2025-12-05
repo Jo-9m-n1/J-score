@@ -73,7 +73,7 @@ def encrypt(text, shift=3):
     for i, char in enumerate(text):
         new_char = chr((ord(char) + shift + i) % 256)
         # We are storing the "encrypted" password and the username
-        # by shifting its unicodes 
+        # by shifting its unicodes
         # Built in function to convert character to an unicode:
         # https://www.w3schools.com/python/ref_func_ord.asp
         # Built in function to convert unicode to a character:
@@ -124,7 +124,7 @@ def result_ad():
         Z = (user_grade - (cut_off - 0.025)) / 0.75
         cdf = (0.5 * (1 + math.erf(Z / math.sqrt(2)))) * 100
         # erf is an error function that is used in r-score calculations
-        # source: https://docs.python.org/3/library/math.html 
+        # source: https://docs.python.org/3/library/math.html
         chance = round(cdf, 2)
 
         if not university or not major:
