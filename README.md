@@ -5,14 +5,11 @@
 
 [**J-score**](https://j-score.vercel.app/) is a dedicated platform designed to **help CÉGEP students** navigate and plan their academic futures. By leveraging **mathematical logic rooted in probability and statistics** (201-SN1-RE), it provides students with data-driven insights into their academic trajectory. 
 
----
 ## Creators
 - [Jongmin Lee](https://www.linkedin.com/in/jo-9m-n1/)
 - [James Ferdinand Combista](https://www.linkedin.com/in/james-ferdinand-combista-88039b316/)
 
 <img src="https://user-images.githubusercontent.com/74038190/216654116-d0e8d227-7977-4edc-8d36-63461bda9503.gif" width="90">
-
----
 
 ## Key Features
 
@@ -21,14 +18,10 @@
 - **Target R-score Projection**: Determine the specific R-Score required in future semesters to reach your academic goals.
 - **Probabilistic Learning Modules**: Educational tools that demonstrate the mathematical logic of probability and statistics used in the R-Score system.
 
----
-
 ## Tech Stack
 
 - **Frontend**: HTML, CSS & JavaScript
 - **Backend**: Python (Flask)  
-
----
 
 ## Getting Started
 
