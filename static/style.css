@@ -11,7 +11,7 @@ body::-webkit-scrollbar {
 }
 
 nav ul {
-    list-style-type: none; 
+    list-style-type: none;
     margin: 0;
     padding: 0;
     display: flex; 
@@ -26,7 +26,7 @@ header {
 header a {
     display: block;
     color: aliceblue;
-    padding: 14px 16px;
+    padding: 12px 14px;
     text-decoration: none;
     text-align: center;
     justify-content: space-around; /* https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/justify-content */
@@ -51,6 +51,7 @@ body {
     max-width: 1000px;
     padding: 0;
     margin: 0 auto;
+    padding: 0 15px;
 }
 
 /* footer was copied from the header in the online new.css to extend the borders to the edges of the screen */
@@ -69,7 +70,7 @@ footer {
 .image-text {
     display: inline-flex;
     align-items: center;
-    gap: 10px;
+    gap: 1px;
 }
 
 /* how to center an image: https://www.w3schools.com/css/css3_image_center.asp */
@@ -89,6 +90,10 @@ img {
     margin: 10px;
     border: 20px;
     outline: none;
+    width: 50%;
+    max-width: 100%;
+    height: 50%;
+    max-height: 100%;
 }
 
 img:hover {
@@ -113,4 +118,26 @@ textarea {
 
 button {
     background-color: #2375D1;
+}
+
+@media (max-width: 666px) {
+    nav ul {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    header a {
+        text-align: center;
+        padding: 6px 0;
+    }
+
+    header a:last-child {
+        border-bottom: none;
+    }
+
+    .image-text {
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+    }
 }
