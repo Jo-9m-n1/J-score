@@ -118,14 +118,14 @@ def future():
 @app.route("/result_future", methods=["POST"])
 def result_future():
     try:
-        credit_done = int(request.form.get("credit_done"))
-        credit_remaining = int(request.form.get("credit_remaining"))
-        r_score = int(request.form.get("r_score"))
-        user_grade = int(request.form.get("user_grade"))
+        credit_done = float(request.form.get("credit_done"))
+        credit_remaining = float(request.form.get("credit_remaining"))
+        r_score = float(request.form.get("r_score"))
+        user_grade = float(request.form.get("user_grade"))
 
         total = credit_done * user_grade
         desire_total = (credit_done + credit_remaining) * r_score
-        r_score_needed = (desire_total - total) / credit_remaining
+        r_score_needed = round((desire_total - total) / credit_remaining, 2)
 
         return render_template("/future/result_future.html", r_score_needed=r_score_needed, r_score=r_score)
     except:        
