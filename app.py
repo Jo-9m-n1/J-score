@@ -131,7 +131,7 @@ def result_future():
     except:        
         return render_template(
             "error.html",
-            error_message="You have missing values!",
+            error_message="Something went wrong!",
             url=url_for("future"),
             submit_again="Submit Again",
         )
