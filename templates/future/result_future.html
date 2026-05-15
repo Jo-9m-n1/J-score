@@ -1,0 +1,23 @@
+{% extends "layout.html" %}
+
+{% block title %}
+
+<title>Result Admissions Calculator - J-Score</title>
+
+{% endblock %}
+
+{% block body %}
+<main>
+
+    <h1>
+        You need {{r_score_needed}} in order to get {{r_score}}.
+    </h1>
+    <p>
+        <a href="{{ url_for('future') }}">Submit another one!</a>
+    </p>
+    <p>
+        <a href="{{ url_for('index')}}">Find out how it is calculated!</a>
+    </p>
+</main>
+
+{% endblock %}

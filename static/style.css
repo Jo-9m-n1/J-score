@@ -1,5 +1,15 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Orbitron:wght@400..900&family=Parkinsans:wght@300..800&family=Permanent+Marker&display=swap');
 
+html, body {
+    -ms-overflow-style: none;  
+    scrollbar-width: none;  
+}
+
+html::-webkit-scrollbar, 
+body::-webkit-scrollbar {
+    display: none;
+}
+
 nav ul {
     list-style-type: none; 
     margin: 0;

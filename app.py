@@ -111,6 +111,30 @@ def r_score():
 def admissions():
     return render_template("/admissions/admissions.html")
 
+@app.route("/future")
+def future():
+    return render_template("/future/future.html")
+
+@app.route("/result_future", methods=["POST"])
+def result_future():
+    try:
+        credit_done = int(request.form.get("credit_done"))
+        credit_remaining = int(request.form.get("credit_remaining"))
+        r_score = int(request.form.get("r_score"))
+        user_grade = int(request.form.get("user_grade"))
+
+        total = credit_done * user_grade
+        desire_total = (credit_done + credit_remaining) * r_score
+        r_score_needed = (desire_total - total) / credit_remaining
+
+        return render_template("/future/result_future.html", r_score_needed=r_score_needed, r_score=r_score)
+    except:        
+        return render_template(
+            "error.html",
+            error_message="You have missing values!",
+            url=url_for("future"),
+            submit_again="Submit Again",
+        )
 
 @app.route("/result_ad", methods=["POST"])
 def result_ad():

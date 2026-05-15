@@ -1,0 +1,51 @@
+{% extends "layout.html" %}
+
+{% block title %}
+
+<title>Future R-score Calculator - J-Score</title>
+
+{% endblock %}
+
+{% block body %}
+<main>
+    <h1>Future R-score Calculator:</h1>
+    <form action="{{ url_for('result_future') }}" method="post">
+        <section class="q1">
+            <h2>Total credits done:</h2>
+                <p>
+                    <label for="q1">Answer:</label>
+                    <input type="number" id="q1" name="credit_done" placeholder="30" required>
+                </p>
+        </section>
+        <section class="q2">
+            <h2>Total remaining credits</h2>
+                <p>
+                    <label for="q2">Answer:</label>
+                    <input type="number" id="q2" name="credit_remaining" placeholder="30" required>
+                </p>
+        </section>
+        <section class="q3">
+            <h2>Desire R-score</h2>
+                <p>
+                    <label for="q3">Answer:</label>
+                    <input type="number" id="q3" name="r_score" step="any" placeholder="30" required>
+                </p>
+                <p>
+                    You do not know your global R-Score? <a href="{{ url_for('admissions') }}">Found it now!</a>
+                </p>
+        </section>
+        <section class="q4">
+            <h2>Your global R-Score</h2>
+                <p>
+                    <label for="q4">Answer:</label>
+                    <input type="number" id="q4" name="user_grade" step="any" placeholder="30" required>
+                </p>
+                <p>
+                    You do not know your global R-Score? <a href="{{ url_for('r_score') }}">Calculate it now!</a>
+                </p>
+        </section>
+        <button type="submit">Submit</button>
+    </form>
+</main>
+
+{% endblock %}
