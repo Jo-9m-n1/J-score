@@ -1,8 +1,52 @@
 from flask import Flask, render_template, request, url_for
 import math
 import csv
+import os
 
 app = Flask(__name__)
+
+if os.environ.get("VERCEL"):
+    DATA_DIR = "/tmp/.data"
+else:
+    DATA_DIR = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), ".data"
+    )
+
+LOGIN_CSV = os.path.join(DATA_DIR, "login.csv")
+SCORES_CSV = os.path.join(DATA_DIR, "scores.csv")
+
+LOGIN_HEADER = ["name", "nickname", "password"]
+SCORES_HEADER = [
+    "nickname",
+    "subject",
+    "grade",
+    "class_grade",
+    "std",
+    "class_high_grade",
+    "credits",
+    "class_type",
+    "r_score",
+]
+
+
+def ensure_data_files():
+    """Create the data directory and CSV files (with headers) if missing.
+
+    The .data/ folder is git-ignored and /tmp is wiped between cold starts,
+    so the files must be (re)created on demand to avoid FileNotFoundError.
+    """
+    os.makedirs(DATA_DIR, exist_ok=True)
+    if not os.path.exists(LOGIN_CSV):
+        with open(LOGIN_CSV, "w", newline="", encoding="utf-8") as csv_file:
+            csv.writer(csv_file).writerow(LOGIN_HEADER)
+    if not os.path.exists(SCORES_CSV):
+        with open(SCORES_CSV, "w", newline="", encoding="utf-8") as csv_file:
+            csv.writer(csv_file).writerow(SCORES_HEADER)
+
+
+@app.before_request
+def _prepare_data_files():
+    ensure_data_files()
 
 
 def globalScore(global_list):
@@ -221,7 +265,7 @@ def result():
         ) * 5, 2)
         # verifies if username exists in login.csv
         username = None
-        with open(".data/login.csv", mode="r", newline="") as csv_file:
+        with open(LOGIN_CSV, mode="r", newline="") as csv_file:
             login = csv.DictReader(csv_file, delimiter=",")
             for row in login:
                 if (
@@ -242,7 +286,7 @@ def result():
         # r-score for a subject they already submitted before
         if re_take != "yes":
             foundDuplicate = False
-            with open(".data/scores.csv", mode="r", newline="") as csv_file:
+            with open(SCORES_CSV, mode="r", newline="") as csv_file:
                 check_subject = csv.DictReader(csv_file)
                 for row in check_subject:
                     if (
@@ -272,7 +316,7 @@ def result():
                 )
         # adds the data from r-score calculator into csv
         with open(
-            ".data/scores.csv", mode="a", newline="", encoding="utf-8"
+            SCORES_CSV, mode="a", newline="", encoding="utf-8"
         ) as csv_file:
             writer = csv.writer(csv_file)
             writer.writerow(
@@ -291,7 +335,7 @@ def result():
         # goes to the helper function values_to_list to return a list of
         # data to show to the user in a table
         with open(
-            ".data/scores.csv", mode="r", newline="", encoding="utf-8"
+            SCORES_CSV, mode="r", newline="", encoding="utf-8"
         ) as csv_file:
             reader = csv.DictReader(csv_file)
             rows, found_user, global_list = values_to_list(
@@ -335,7 +379,7 @@ def your_r_score():
         username = None
         # verifies username AND password
         with open(
-            ".data/login.csv", mode="r", newline="", encoding="utf-8"
+            LOGIN_CSV, mode="r", newline="", encoding="utf-8"
         ) as csv_file:
             login = csv.DictReader(csv_file, delimiter=",")
             for row in login:
@@ -362,7 +406,7 @@ def your_r_score():
         # goes to the helper function values_to_list to return a list
         # of data to show to the user in a table
         with open(
-            ".data/scores.csv", mode="r", newline="", encoding="utf-8"
+            SCORES_CSV, mode="r", newline="", encoding="utf-8"
         ) as csv_file:
             reader = csv.DictReader(csv_file, delimiter=",")
             rows, found_user, global_list = values_to_list(
@@ -424,7 +468,7 @@ def signup_result():
             submit_again="Try Again",
         )
 
-    csv_path = ".data/login.csv"
+    csv_path = LOGIN_CSV
 
     # verifies if account already exists
     with open(csv_path, mode="r", newline="", encoding="utf-8") as csv_file:
@@ -543,7 +587,7 @@ def password_result():
         name = request.form.get("name")
 
         with open(
-            ".data/login.csv", mode="r", newline="", encoding="utf-8"
+            LOGIN_CSV, mode="r", newline="", encoding="utf-8"
         ) as csv_file:
             reader = csv.DictReader(csv_file)
             for row in reader:
@@ -582,7 +626,7 @@ def remove_last_score():
     fieldnames = []
     user_rows = []
     # gets all the the current data from scores.csv
-    with open(".data/scores.csv", mode="r",
+    with open(SCORES_CSV, mode="r",
               newline="", encoding="utf-8") as csv_file:
         reader = csv.DictReader(csv_file, delimiter=",")
         fieldnames = reader.fieldnames
@@ -604,7 +648,7 @@ def remove_last_score():
             except ValueError:
                 pass
     # writing the updated list into the a new csv file
-    with open(".data/scores.csv", mode="w",
+    with open(SCORES_CSV, mode="w",
               newline="", encoding="utf-8") as csv_file:
         writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
         writer.writeheader()
