@@ -16,11 +16,15 @@
         </h1>
         <nav>
             <ul>
-                <li><a href="{{ url_for('signup') }}">Sign up</a></li>
                 <li><a href="{{ url_for('admissions') }}">Admission Probability Calculator</a></li>
                 <li><a href="{{ url_for('future') }}">Plan your future</a></li>
                 <li><a href="{{ url_for('r_score') }}">Calculate your R-Score</a></li>
-                <li><a href="{{ url_for('check_r_score') }}">Check your R-Score</a></li>
+                {% if session.get('display_name') %}
+                <li><a href="{{ url_for('my_r_score') }}">My R-Score</a></li>
+                <li><a href="{{ url_for('logout') }}">Log out</a></li>
+                {% else %}
+                <li><a href="{{ url_for('signup') }}">Sign up</a></li>
+                {% endif %}
             </ul>
         </nav>
     </header>

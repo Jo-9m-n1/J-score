@@ -11,29 +11,16 @@
 <main>
     <h1>Calculate your R-Score:</h1>
     <form action="result" method="post">
-        <section class="nickname">
-            <h2>What's your username?</h2>
-                <p>
-                    <label for="nickname">Answer:</label>
-                    <input type="text" id="nickname" name="nickname" placeholder="Optional">
-                </p>
-        </section>
-        <section class="password">
-            <h2>What's your password?</h2>
-                <p>
-                    <label for="password">Answer:</label>
-                    <input type="password" id="password" name="password" placeholder="Optional">
-                </p>
-        </section>
+        {% if session.get('display_name') %}
         <p>
-        Forgot your password? <a href="{{ url_for('password') }}">Find your password!</a>
+            You're logged in as <strong>{{ session.get('display_name') }}</strong>, so your R-Score will be saved automatically.
+            <a href="{{ url_for('logout') }}">Log out</a>
         </p>
+        {% else %}
         <p>
-            R-Score can be calculated without an account. However, your R-Score will not be saved.
+            <a href="{{ url_for('signup') }}">Login</a> or <a href="{{ url_for('signup') }}">sign up</a> to save your R-score! (Optional)
         </p>
-        <p>
-            Don't have an account? <a href="{{ url_for('signup') }}">Create one!</a>
-        </p>
+        {% endif %}
         <section class="subject">
             <h2>What's the name of the subject?</h2>
                 <p>

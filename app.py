@@ -1,9 +1,33 @@
-from flask import Flask, render_template, request, url_for
+from flask import (
+    Flask,
+    render_template,
+    request,
+    url_for,
+    session,
+    redirect,
+)
+from datetime import timedelta
 import math
 import csv
 import os
 
 app = Flask(__name__)
+
+app.secret_key = os.environ.get(
+    "SECRET_KEY", "VerySecretKey"
+)
+
+app.permanent_session_lifetime = timedelta(days=30)
+
+def login_user(encrypted_nickname):
+    """Remember the logged-in user in a long-lived session cookie.
+
+    The CSV files key everything on the *encrypted* nickname, so that is what
+    we store for lookups; the decrypted name is kept only for display.
+    """
+    session.permanent = True
+    session["user"] = encrypted_nickname
+    session["display_name"] = decrypt(encrypted_nickname)
 
 if os.environ.get("VERCEL"):
     DATA_DIR = "/tmp/.data"
@@ -228,8 +252,15 @@ def result():
         class_high_grade = float(request.form.get("class_high_grade"))
         subject_credit = float(request.form.get("credits"))
         class_type = request.form.get("science")
-        nickname = encrypt(request.form.get("nickname").strip())
-        password = encrypt(request.form.get("password"))
+        # if the user is already logged in we reuse their session instead of
+        # making them type their username and password again
+        logged_in_user = session.get("user")
+        if logged_in_user:
+            nickname = logged_in_user
+            password = None
+        else:
+            nickname = encrypt(request.form.get("nickname").strip())
+            password = encrypt(request.form.get("password"))
 
         if std == 0:
             error_message = (
@@ -263,17 +294,21 @@ def result():
         r_score = round((
             ((grade - class_grade + 0.45) / std) * IDGZ + ISGZ + 5
         ) * 5, 2)
-        # verifies if username exists in login.csv
+        # verifies if username exists in login.csv (skipped when already
+        # authenticated through the session)
         username = None
-        with open(LOGIN_CSV, mode="r", newline="") as csv_file:
-            login = csv.DictReader(csv_file, delimiter=",")
-            for row in login:
-                if (
-                    row["nickname"].lower() == nickname.lower()
-                    and row["password"] == password
-                ):
-                    username = nickname
-                    break
+        if logged_in_user:
+            username = nickname
+        else:
+            with open(LOGIN_CSV, mode="r", newline="") as csv_file:
+                login = csv.DictReader(csv_file, delimiter=",")
+                for row in login:
+                    if (
+                        row["nickname"].lower() == nickname.lower()
+                        and row["password"] == password
+                    ):
+                        username = nickname
+                        break
         # will return their r-score but it'll not be saved into the
         # scores.csv file
         if username is None:
@@ -282,6 +317,8 @@ def result():
                 subject=subject,
                 r_score=r_score
             )
+        # credentials are valid, so remember the user for next time
+        login_user(username)
         # this block of code checks whether a user is trying to submit a
         # r-score for a subject they already submitted before
         if re_take != "yes":
@@ -297,7 +334,7 @@ def result():
                         break
 
             if foundDuplicate:
-                password = decrypt(password)
+                password = decrypt(password) if password else ""
                 nickname = decrypt(nickname)
                 score_data = {
                     "nickname": nickname,
@@ -369,6 +406,80 @@ def check_r_score():
     return render_template("/check_r_score/check_r_score.html")
 
 
+@app.route("/my_r_score")
+def my_r_score():
+    # shows the logged-in user's R-Score without asking for credentials again
+    encrypted_nickname = session.get("user")
+    if not encrypted_nickname:
+        return redirect(url_for("check_r_score"))
+
+    with open(
+        SCORES_CSV, mode="r", newline="", encoding="utf-8"
+    ) as csv_file:
+        reader = csv.DictReader(csv_file, delimiter=",")
+        rows, found_user, global_list = values_to_list(
+            reader, encrypted_nickname
+        )
+
+    if not found_user:
+        error_message = "You do not have any calculated R-Score!"
+        return render_template(
+            "error.html",
+            error_message=error_message,
+            url=url_for("r_score"),
+            submit_again="Calculate your R-Score",
+        )
+
+    global_score = globalScore(global_list)
+    return render_template(
+        "r_score/result.html",
+        display_message="These are your R-scores",
+        past_score=rows,
+        global_score=global_score,
+        username=session.get("display_name"),
+    )
+
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect(url_for("index"))
+
+
+@app.route("/login", methods=["POST"])
+def login():
+    # logs an existing user in from the sign up page
+    try:
+        nickname = encrypt(request.form.get("nickname", "").strip())
+        password = encrypt(request.form.get("password", ""))
+    except AttributeError:
+        nickname = ""
+        password = ""
+
+    with open(
+        LOGIN_CSV, mode="r", newline="", encoding="utf-8"
+    ) as csv_file:
+        reader = csv.DictReader(csv_file, delimiter=",")
+        for row in reader:
+            if (
+                row["nickname"].lower() == nickname.lower()
+                and row["password"] == password
+            ):
+                login_user(nickname)
+                return redirect(url_for("my_r_score"))
+
+    error_message = (
+        "Your account doesn't exist, or your login information is "
+        "incorrect. Sign up below to create an account."
+    )
+    return render_template(
+        "error.html",
+        error_message=error_message,
+        url=url_for("signup"),
+        submit_again="Try Again",
+    )
+
+
 @app.route("/your_r_score", methods=["POST"])
 def your_r_score():
     # skips submitting an r-score to see the r-score table with the overall
@@ -402,6 +513,9 @@ def your_r_score():
                     url=url_for("check_r_score"),
                     submit_again="Try Again",
                 )
+
+        # credentials are valid, so remember the user for next time
+        login_user(username)
 
         # goes to the helper function values_to_list to return a list
         # of data to show to the user in a table
@@ -485,6 +599,8 @@ def signup_result():
         data = csv.writer(csv_file, delimiter=",")
         data.writerow([name, nickname, password])
 
+    # new accounts are logged in automatically
+    login_user(nickname)
     nickname = decrypt(nickname)
     return render_template("signup/welcome.html", username=nickname)
 

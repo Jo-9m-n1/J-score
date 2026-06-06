@@ -120,6 +120,16 @@ button {
     background-color: #2375D1;
 }
 
+.auth-forms {
+    display: flex;
+    gap: 40px;
+    align-items: flex-start;
+}
+
+.auth-forms > section {
+    flex: 1;
+}
+
 @media (max-width: 666px) {
     nav ul {
         flex-direction: column;
@@ -139,5 +149,10 @@ button {
         flex-direction: column;
         align-items: center;
         gap: 15px;
+    }
+
+    .auth-forms {
+        flex-direction: column;
+        gap: 0;
     }
 }
