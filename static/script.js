@@ -19,30 +19,46 @@ function zoomOut(e) {
   img.classList.toggle("zoom");
 }
 
-const savedTheme = localStorage.getItem('selected-theme');
 const lightTheme = "https://newcss.net/theme/light.css";
 const nightTheme = "https://newcss.net/theme/night.css";
-const themeLink = document.getElementById('theme-link');
 
-if (savedTheme && themeLink) {
-  themeLink.setAttribute('href', savedTheme);
+function getStoredTheme() {
+  try {
+    return localStorage.getItem('selected-theme');
+  } catch (e) {
+    return null;
+  }
+}
+
+function setStoredTheme(theme) {
+  try {
+    localStorage.setItem('selected-theme', theme);
+  } catch (e) {
+    console.log('Storage unavailable (private mode?)');
+  }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  const themeLink = document.getElementById('theme-link');
   const toggleIcon = document.getElementById('theme-toggle');
 
-  if (toggleIcon) {
-    toggleIcon.addEventListener('click', (e) => {
-      if (toggleIcon.tagName === 'A') e.preventDefault(); 
-            
+  const savedTheme = getStoredTheme();
+  if (savedTheme && themeLink) {
+    themeLink.setAttribute('href', savedTheme);
+  }
+
+  if (toggleIcon && themeLink) {
+    const handleThemeToggle = (e) => {
+      e.preventDefault();
+      
       const currentTheme = themeLink.getAttribute('href');
-      if (currentTheme === lightTheme) {
-        themeLink.setAttribute('href', nightTheme);
-        localStorage.setItem('selected-theme', nightTheme);
-      } else {
-        themeLink.setAttribute('href', lightTheme);
-        localStorage.setItem('selected-theme', lightTheme);
-      }
-    });
+      const newTheme = currentTheme === lightTheme ? nightTheme : lightTheme;
+      
+      themeLink.setAttribute('href', newTheme);
+      setStoredTheme(newTheme);
+    };
+
+    toggleIcon.addEventListener('click', handleThemeToggle);
+    toggleIcon.addEventListener('touchstart', handleThemeToggle);
   }
 });
