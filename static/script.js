@@ -19,18 +19,30 @@ function zoomOut(e) {
   img.classList.toggle("zoom");
 }
 
-const toggleBtn = document.getElementById('theme-toggle');
-const themeLink = document.getElementById('theme-link');
-
+const savedTheme = localStorage.getItem('selected-theme');
 const lightTheme = "https://newcss.net/theme/light.css";
 const nightTheme = "https://newcss.net/theme/night.css";
+const themeLink = document.getElementById('theme-link');
 
-toggleBtn.addEventListener('click', () => {
-  if (themeLink.getAttribute('href') === lightTheme) {
-    themeLink.setAttribute('href', nightTheme);
-    toggleBtn.textContent = "Dark Mode";
-  } else {
-    themeLink.setAttribute('href', lightTheme);
-    toggleBtn.textContent = "Light Mode";
+if (savedTheme && themeLink) {
+  themeLink.setAttribute('href', savedTheme);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const toggleIcon = document.getElementById('theme-toggle');
+
+  if (toggleIcon) {
+    toggleIcon.addEventListener('click', (e) => {
+      if (toggleIcon.tagName === 'A') e.preventDefault(); 
+            
+      const currentTheme = themeLink.getAttribute('href');
+      if (currentTheme === lightTheme) {
+        themeLink.setAttribute('href', nightTheme);
+        localStorage.setItem('selected-theme', nightTheme);
+      } else {
+        themeLink.setAttribute('href', lightTheme);
+        localStorage.setItem('selected-theme', lightTheme);
+      }
+    });
   }
 });

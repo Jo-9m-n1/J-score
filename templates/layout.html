@@ -8,7 +8,7 @@
         <link id="theme-link" rel="stylesheet" href="https://newcss.net/theme/light.css">
         <link href="../static/style.css" rel="stylesheet" type="text/css">
         <link rel="icon" type="image/x-icon" href="../static/favicon.ico">
-        {% block scripts %}{% endblock %}
+        <script src="../static/script.js" defer></script>
     </head>
     <header>
         <h1>
@@ -26,8 +26,8 @@
                 <li><a href="{{ url_for('signup') }}">Sign up</a></li>
                 {% endif %}
                 <li>
-                    <a href="#" id="theme-toggle" role="button" aria-label="Toggle Theme">
-                        Light Mode
+                    <a href="#" id="theme-toggle" role="button">
+                        Change theme
                     </a>
                 </li>
             </ul>

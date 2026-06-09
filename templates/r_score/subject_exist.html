@@ -6,7 +6,7 @@
 
 {% block body %}
 <main>
-    <h1>You already have a calculated R-score for {{ score_data["subject"] }}.</h1>
+    <h1>You already have a calculated R-Score for {{ score_data["subject"] }}.</h1>
     <form action="{{ url_for('result') }}" method="post">
         {% for key, value in score_data.items() %}
             <input type="hidden" name="{{ key }}" value="{{ value }}">
