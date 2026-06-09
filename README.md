@@ -55,8 +55,41 @@ Ensure you have Python installed, then run:
 pip install -r requirements.txt
 ```
 
+### 4. Configure Supabase
+To connect the app to Supabase, create a Supabase project and set these environment variables in `.env`:
 
-### 4. Run the Application
+```env
+SUPABASE_URL=https://your-project-id.supabase.co
+SUPABASE_ANON_KEY=your-anon-key
+# Optional, use this if you want server-side access for all operations
+# This is required for signup/account creation if your Supabase tables use row-level security.
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+```
+
+Create two tables in Supabase:
+
+- `profiles` with at least the columns:
+  - `id` uuid primary key default `gen_random_uuid()` or `uuid_generate_v4()`
+  - `name` text
+  - `nickname` text unique
+  - `password` text
+- `scores` with at least the columns:
+  - `id` uuid primary key default `gen_random_uuid()` or `uuid_generate_v4()`
+  - `profile_id` uuid references `profiles.id`
+  - `nickname` text
+  - `subject` text
+  - `grade` numeric
+  - `class_grade` numeric
+  - `std` numeric
+  - `class_high_grade` numeric
+  - `credits` numeric
+  - `class_type` text
+  - `r_score` numeric
+  - `created_at` timestamp with time zone default `now()`
+
+The app now exposes a Flask JSON endpoint at `/api/scores` that fetches data from Supabase and allows the frontend to display it.
+
+### 5. Run the Application
 You can start the server using the standard Python command:
 
 ```Bash

@@ -10,6 +10,30 @@ from datetime import timedelta
 import math
 import csv
 import os
+import base64
+
+from dotenv import load_dotenv
+from supabase import create_client
+
+load_dotenv(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env"))
+
+SUPABASE_URL = os.environ.get("SUPABASE_URL")
+SUPABASE_ANON_KEY = os.environ.get("SUPABASE_ANON_KEY")
+SUPABASE_SERVICE_ROLE_KEY = os.environ.get("SUPABASE_SERVICE_ROLE_KEY")
+SUPABASE_KEY = (
+    SUPABASE_SERVICE_ROLE_KEY
+    or os.environ.get("SUPABASE_KEY")
+    or SUPABASE_ANON_KEY
+)
+
+supabase = None
+if SUPABASE_URL and SUPABASE_KEY:
+    supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+    if SUPABASE_SERVICE_ROLE_KEY:
+        app_logger_message = "Using SUPABASE_SERVICE_ROLE_KEY for Supabase client."
+    else:
+        app_logger_message = "Using anon Supabase key. Write operations may fail if RLS is enabled."
+    print(app_logger_message)
 
 app = Flask(__name__)
 
@@ -98,12 +122,84 @@ def globalScore(global_list):
     return global_score
 
 
+def encrypt_value(value):
+    """Encrypt a value and wrap with enc: prefix."""
+    if value is None or value == "":
+        return value
+    encrypted = encrypt(str(value))
+    token = base64.urlsafe_b64encode(
+        encrypted.encode("latin-1")
+    ).decode("ascii")
+    return f"enc:{token}"
+
+
+def decrypt_value(value):
+    """Decrypt a value that may have enc: prefix. Returns string."""
+    if value is None or value == "":
+        return value
+    if isinstance(value, (int, float)):
+        return str(value)
+
+    value_str = str(value)
+    if not value_str.startswith("enc:"):
+        return value_str
+
+    try:
+        token = value_str.split("enc:", 1)[1]
+        decoded = base64.urlsafe_b64decode(token.encode("ascii")).decode(
+            "latin-1"
+        )
+        return decrypt(decoded)
+    except Exception:
+        return value_str
+
+
+def decrypt_numeric_value(value):
+    """Decrypt a value and return as float. Returns None if invalid."""
+    if value is None or value == "":
+        return None
+    if isinstance(value, (int, float)):
+        return float(value)
+
+    value_str = str(value)
+    if value_str.startswith("enc:"):
+        try:
+            token = value_str.split("enc:", 1)[1]
+            decoded = base64.urlsafe_b64decode(token.encode("ascii")).decode(
+                "latin-1"
+            )
+            return float(decrypt(decoded))
+        except Exception:
+            return None
+
+    try:
+        return float(value_str)
+    except ValueError:
+        return None
+
+
+def decrypt_score_row(row):
+    """Decrypt all fields in a score row."""
+    row_copy = dict(row)
+    row_copy["nickname"] = decrypt_value(row_copy.get("nickname"))
+    row_copy["grade"] = decrypt_numeric_value(row_copy.get("grade"))
+    row_copy["class_grade"] = decrypt_numeric_value(
+        row_copy.get("class_grade")
+    )
+    row_copy["std"] = decrypt_numeric_value(row_copy.get("std"))
+    row_copy["class_high_grade"] = decrypt_numeric_value(
+        row_copy.get("class_high_grade")
+    )
+    row_copy["credits"] = decrypt_numeric_value(row_copy.get("credits"))
+    row_copy["r_score"] = decrypt_numeric_value(row_copy.get("r_score"))
+    return row_copy
+
+
 def values_to_list(rows, username=None):
     """
-    Converts .csv dictionary values into a list containing ONLY the values
-    and not its key
+    Converts score rows into a list containing ONLY the values and not its key.
     Parameters:
-        rows: DictReader
+        rows: iterable of dict-like score rows
         username: username to filter their specific scores, defaults to none
     Returns:
         item_rows: (2D List) containing every value in the format
@@ -114,26 +210,285 @@ def values_to_list(rows, username=None):
     found_user = False
 
     for row in rows:
-        if row["nickname"] == username.lower():
+        if row["nickname"].lower() == username.lower():
+            decrypted_row = decrypt_score_row(row)
             found_user = True
             item_rows.append(
                 [
-                    row["nickname"],
-                    row["subject"],
-                    row["grade"],
-                    row["class_grade"],
-                    row["std"],
-                    row["class_high_grade"],
-                    row["credits"],
-                    row["class_type"],
-                    row["r_score"],
+                    decrypted_row["nickname"],
+                    decrypted_row["subject"],
+                    decrypted_row["grade"],
+                    decrypted_row["class_grade"],
+                    decrypted_row["std"],
+                    decrypted_row["class_high_grade"],
+                    decrypted_row["credits"],
+                    decrypted_row["class_type"],
+                    decrypted_row["r_score"],
                 ]
             )
-            if row["r_score"] and row["credits"]:
+            if (
+                decrypted_row["r_score"] is not None
+                and decrypted_row["credits"] is not None
+            ):
                 global_list.append(
-                    [float(row["r_score"]), float(row["credits"])]
+                    [
+                        decrypted_row["r_score"],
+                        decrypted_row["credits"],
+                    ]
                 )
     return item_rows, found_user, global_list
+
+
+def supabase_enabled():
+    return supabase is not None
+
+
+def get_profile_by_nickname(encrypted_nickname):
+    if not supabase_enabled():
+        return None
+
+    try:
+        response = (
+            supabase.table("profiles")
+            .select("id, name, nickname, password")
+            .eq("nickname", encrypted_nickname)
+            .limit(1)
+            .execute()
+        )
+        profile = response.data[0] if response.data else None
+        if profile and profile.get("name"):
+            profile["name"] = decrypt_value(profile.get("name"))
+        return profile
+    except Exception:
+        return None
+
+
+def verify_profile(encrypted_nickname, encrypted_password):
+    profile = get_profile_by_nickname(encrypted_nickname)
+    if profile and profile.get("password") == encrypted_password:
+        return profile
+    return None
+
+
+def create_profile(name, encrypted_nickname, encrypted_password):
+    try:
+        response = (
+            supabase.table("profiles")
+            .insert([
+                {
+                    "name": name,
+                    "nickname": encrypted_nickname,
+                    "password": encrypted_password,
+                }
+            ])
+            .execute()
+        )
+        return response.data[0] if response.data else None
+    except Exception as exc:
+        app.logger.exception(
+            "Failed to create profile in Supabase. Verify SUPABASE_SERVICE_ROLE_KEY and row-level security policies."
+        )
+        return None
+
+
+def get_scores_for_profile(profile_id, nickname=None):
+    if not supabase_enabled():
+        return []
+
+    if profile_id is not None:
+        try:
+            response = (
+                supabase.table("scores")
+                .select("*, profiles(name)")
+                .eq("profile_id", profile_id)
+                .execute()
+            )
+            return response.data or []
+        except Exception as exc:
+            app.logger.warning(
+                "get_scores_for_profile failed with profile_id fallback: %s",
+                exc,
+            )
+
+    if nickname:
+        try:
+            response = (
+                supabase.table("scores")
+                .select("*")
+                .eq("nickname", nickname)
+                .execute()
+            )
+            return response.data or []
+        except Exception as exc:
+            app.logger.warning(
+                "get_scores_for_profile failed with nickname fallback: %s",
+                exc,
+            )
+
+    return []
+
+
+def score_exists_for_profile(profile_id, subject, nickname=None):
+    if not supabase_enabled():
+        return False
+
+    if profile_id is not None:
+        try:
+            response = (
+                supabase.table("scores")
+                .select("id")
+                .eq("profile_id", profile_id)
+                .eq("subject", subject)
+                .limit(1)
+                .execute()
+            )
+            return bool(response.data)
+        except Exception as exc:
+            app.logger.warning(
+                "score_exists_for_profile failed with profile_id fallback: %s",
+                exc,
+            )
+
+    if nickname:
+        try:
+            response = (
+                supabase.table("scores")
+                .select("id")
+                .eq("nickname", nickname)
+                .eq("subject", subject)
+                .limit(1)
+                .execute()
+            )
+            return bool(response.data)
+        except Exception as exc:
+            app.logger.warning(
+                "score_exists_for_profile failed with nickname fallback: %s",
+                exc,
+            )
+
+    return False
+
+
+def insert_score(profile_id, nickname, subject, grade, class_grade, std, class_high_grade, credits, class_type, r_score):
+    if not supabase_enabled():
+        return None
+
+    try:
+        payload = {
+            "nickname": nickname,
+            "subject": subject,
+            "grade": encrypt_value(grade),
+            "class_grade": class_grade,
+            "std": std,
+            "class_high_grade": class_high_grade,
+            "credits": credits,
+            "class_type": class_type,
+            "r_score": encrypt_value(r_score),
+        }
+        if profile_id is not None:
+            payload["profile_id"] = profile_id
+
+        response = (
+            supabase.table("scores")
+            .insert([payload])
+            .execute()
+        )
+        return response.data[0] if response.data else None
+    except Exception as exc:
+        error_text = str(exc)
+        app.logger.warning(
+            "insert_score failed on Supabase insert: %s",
+            error_text,
+        )
+        if "profile_id" in error_text or "Could not find the 'profile_id'" in error_text:
+            try:
+                response = (
+                    supabase.table("scores")
+                    .insert([
+                        {
+                            "nickname": nickname,
+                            "subject": subject,
+                            "grade": encrypt_value(grade),
+                            "class_grade": class_grade,
+                            "std": std,
+                            "class_high_grade": class_high_grade,
+                            "credits": credits,
+                            "class_type": class_type,
+                            "r_score": encrypt_value(r_score),
+                        }
+                    ])
+                    .execute()
+                )
+                return response.data[0] if response.data else None
+            except Exception as exc2:
+                app.logger.exception(
+                    "insert_score retry without profile_id failed.",
+                )
+        return None
+
+
+def delete_last_score(profile_id=None, nickname=None):
+    if not supabase_enabled():
+        return False
+
+    if profile_id is not None:
+        try:
+            response = (
+                supabase.table("scores")
+                .select("id")
+                .eq("profile_id", profile_id)
+                .order("created_at", desc=True)
+                .limit(1)
+                .execute()
+            )
+            if response.data:
+                score_id = response.data[0].get("id")
+                delete_response = (
+                    supabase.table("scores")
+                    .delete()
+                    .eq("id", score_id)
+                    .execute()
+                )
+                return bool(delete_response.data)
+        except Exception as exc:
+            app.logger.warning(
+                "delete_last_score by profile_id failed: %s",
+                exc,
+            )
+
+    if nickname:
+        try:
+            response = (
+                supabase.table("scores")
+                .select("id")
+                .eq("nickname", nickname)
+                .order("created_at", desc=True)
+                .limit(1)
+                .execute()
+            )
+            if not response.data:
+                return False
+
+            score_id = response.data[0].get("id")
+            delete_response = (
+                supabase.table("scores")
+                .delete()
+                .eq("id", score_id)
+                .execute()
+            )
+            return bool(delete_response.data)
+        except Exception as exc:
+            app.logger.warning(
+                "delete_last_score by nickname failed: %s",
+                exc,
+            )
+
+    return False
+
+
+def get_profile_id_by_nickname(encrypted_nickname):
+    profile = get_profile_by_nickname(encrypted_nickname)
+    return profile.get("id") if profile else None
 
 
 def encrypt(text, shift=3):
@@ -196,7 +551,7 @@ def result_future():
         r_score_needed = round((desire_total - total) / credit_remaining, 2)
 
         return render_template("/future/result_future.html", r_score_needed=r_score_needed, r_score=r_score)
-    except:        
+    except (ValueError, TypeError, ZeroDivisionError):
         return render_template(
             "error.html",
             error_message="Something went wrong!",
@@ -294,11 +649,18 @@ def result():
         r_score = round((
             ((grade - class_grade + 0.45) / std) * IDGZ + ISGZ + 5
         ) * 5, 2)
-        # verifies if username exists in login.csv (skipped when already
-        # authenticated through the session)
+        # verifies if username exists in login.csv / Supabase (skipped when
+        # already authenticated through the session)
         username = None
+        profile = None
         if logged_in_user:
             username = nickname
+            if supabase_enabled():
+                profile = get_profile_by_nickname(nickname)
+        elif supabase_enabled():
+            profile = verify_profile(nickname, password)
+            if profile:
+                username = nickname
         else:
             with open(LOGIN_CSV, mode="r", newline="") as csv_file:
                 login = csv.DictReader(csv_file, delimiter=",")
@@ -309,29 +671,37 @@ def result():
                     ):
                         username = nickname
                         break
+
         # will return their r-score but it'll not be saved into the
         # scores.csv file
         if username is None:
             return render_template(
                 "r_score/result_no_username.html",
                 subject=subject,
-                r_score=r_score
+                r_score=r_score,
             )
+
         # credentials are valid, so remember the user for next time
         login_user(username)
+
         # this block of code checks whether a user is trying to submit a
         # r-score for a subject they already submitted before
         if re_take != "yes":
             foundDuplicate = False
-            with open(SCORES_CSV, mode="r", newline="") as csv_file:
-                check_subject = csv.DictReader(csv_file)
-                for row in check_subject:
-                    if (
-                        row["nickname"].lower() == nickname.lower()
-                        and row["subject"].lower() == subject.lower()
-                    ):
-                        foundDuplicate = True
-                        break
+            if supabase_enabled() and profile:
+                foundDuplicate = score_exists_for_profile(
+                    profile.get("id"), subject, nickname
+                )
+            else:
+                with open(SCORES_CSV, mode="r", newline="") as csv_file:
+                    check_subject = csv.DictReader(csv_file)
+                    for row in check_subject:
+                        if (
+                            row["nickname"].lower() == nickname.lower()
+                            and row["subject"].lower() == subject.lower()
+                        ):
+                            foundDuplicate = True
+                            break
 
             if foundDuplicate:
                 password = decrypt(password) if password else ""
@@ -351,33 +721,47 @@ def result():
                 return render_template(
                     "r_score/subject_exist.html", score_data=score_data
                 )
-        # adds the data from r-score calculator into csv
-        with open(
-            SCORES_CSV, mode="a", newline="", encoding="utf-8"
-        ) as csv_file:
-            writer = csv.writer(csv_file)
-            writer.writerow(
-                [
-                    nickname,
-                    subject,
-                    grade,
-                    class_grade,
-                    std,
-                    class_high_grade,
-                    subject_credit,
-                    class_type,
-                    r_score,
-                ]
+
+        if supabase_enabled() and profile:
+            insert_score(
+                profile.get("id"),
+                nickname,
+                subject,
+                grade,
+                class_grade,
+                std,
+                class_high_grade,
+                subject_credit,
+                class_type,
+                r_score,
             )
-        # goes to the helper function values_to_list to return a list of
-        # data to show to the user in a table
-        with open(
-            SCORES_CSV, mode="r", newline="", encoding="utf-8"
-        ) as csv_file:
-            reader = csv.DictReader(csv_file)
-            rows, found_user, global_list = values_to_list(
-                reader, username
-            )
+            rows = get_scores_for_profile(profile.get("id"), username)
+            rows, found_user, global_list = values_to_list(rows, username)
+        else:
+            with open(
+                SCORES_CSV, mode="a", newline="", encoding="utf-8"
+            ) as csv_file:
+                writer = csv.writer(csv_file)
+                writer.writerow(
+                    [
+                        nickname,
+                        subject,
+                        encrypt_value(grade),
+                        encrypt_value(class_grade),
+                        encrypt_value(std),
+                        encrypt_value(class_high_grade),
+                        encrypt_value(subject_credit),
+                        class_type,
+                        encrypt_value(r_score),
+                    ]
+                )
+            with open(
+                SCORES_CSV, mode="r", newline="", encoding="utf-8"
+            ) as csv_file:
+                reader = csv.DictReader(csv_file)
+                rows, found_user, global_list = values_to_list(
+                    reader, username
+                )
 
         global_score = globalScore(global_list)
         display_message = (
@@ -413,13 +797,23 @@ def my_r_score():
     if not encrypted_nickname:
         return redirect(url_for("check_r_score"))
 
-    with open(
-        SCORES_CSV, mode="r", newline="", encoding="utf-8"
-    ) as csv_file:
-        reader = csv.DictReader(csv_file, delimiter=",")
-        rows, found_user, global_list = values_to_list(
-            reader, encrypted_nickname
-        )
+    if supabase_enabled():
+        profile = get_profile_by_nickname(encrypted_nickname)
+        if profile:
+            rows = get_scores_for_profile(profile.get("id"), encrypted_nickname)
+            rows, found_user, global_list = values_to_list(
+                rows, encrypted_nickname
+            )
+        else:
+            rows, found_user, global_list = [], False, []
+    else:
+        with open(
+            SCORES_CSV, mode="r", newline="", encoding="utf-8"
+        ) as csv_file:
+            reader = csv.DictReader(csv_file, delimiter=",")
+            rows, found_user, global_list = values_to_list(
+                reader, encrypted_nickname
+            )
 
     if not found_user:
         error_message = "You do not have any calculated R-Score!"
@@ -456,17 +850,23 @@ def login():
         nickname = ""
         password = ""
 
-    with open(
-        LOGIN_CSV, mode="r", newline="", encoding="utf-8"
-    ) as csv_file:
-        reader = csv.DictReader(csv_file, delimiter=",")
-        for row in reader:
-            if (
-                row["nickname"].lower() == nickname.lower()
-                and row["password"] == password
-            ):
-                login_user(nickname)
-                return redirect(url_for("my_r_score"))
+    if supabase_enabled():
+        profile = verify_profile(nickname, password)
+        if profile:
+            login_user(nickname)
+            return redirect(url_for("my_r_score"))
+    else:
+        with open(
+            LOGIN_CSV, mode="r", newline="", encoding="utf-8"
+        ) as csv_file:
+            reader = csv.DictReader(csv_file, delimiter=",")
+            for row in reader:
+                if (
+                    row["nickname"].lower() == nickname.lower()
+                    and row["password"] == password
+                ):
+                    login_user(nickname)
+                    return redirect(url_for("my_r_score"))
 
     error_message = (
         "Your account doesn't exist, or your login information is "
@@ -488,18 +888,25 @@ def your_r_score():
         nickname = encrypt(request.form.get("nickname"))
         password = encrypt(request.form.get("password"))
         username = None
-        # verifies username AND password
-        with open(
-            LOGIN_CSV, mode="r", newline="", encoding="utf-8"
-        ) as csv_file:
-            login = csv.DictReader(csv_file, delimiter=",")
-            for row in login:
-                if (
-                    row["nickname"].lower() == nickname.lower()
-                    and row["password"] == password
-                ):
-                    username = nickname
-                    break
+        profile = None
+
+        if supabase_enabled():
+            profile = verify_profile(nickname, password)
+            if profile:
+                username = nickname
+        else:
+            # verifies username AND password
+            with open(
+                LOGIN_CSV, mode="r", newline="", encoding="utf-8"
+            ) as csv_file:
+                login = csv.DictReader(csv_file, delimiter=",")
+                for row in login:
+                    if (
+                        row["nickname"].lower() == nickname.lower()
+                        and row["password"] == password
+                    ):
+                        username = nickname
+                        break
 
             if not username:
                 error_message = (
@@ -517,15 +924,21 @@ def your_r_score():
         # credentials are valid, so remember the user for next time
         login_user(username)
 
-        # goes to the helper function values_to_list to return a list
-        # of data to show to the user in a table
-        with open(
-            SCORES_CSV, mode="r", newline="", encoding="utf-8"
-        ) as csv_file:
-            reader = csv.DictReader(csv_file, delimiter=",")
+        if supabase_enabled() and profile:
+            rows = get_scores_for_profile(profile.get("id"), username)
             rows, found_user, global_list = values_to_list(
-                reader, username
+                rows, username
             )
+        else:
+            # goes to the helper function values_to_list to return a list
+            # of data to show to the user in a table
+            with open(
+                SCORES_CSV, mode="r", newline="", encoding="utf-8"
+            ) as csv_file:
+                reader = csv.DictReader(csv_file, delimiter=",")
+                rows, found_user, global_list = values_to_list(
+                    reader, username
+                )
 
         if not found_user:
             error_message = "You do not have any calculated R-Score!"
@@ -582,6 +995,28 @@ def signup_result():
             submit_again="Try Again",
         )
 
+    if supabase_enabled():
+        if get_profile_by_nickname(nickname):
+            nickname = decrypt(nickname)
+            return render_template(
+                "signup/account_exists.html",
+                nickname=nickname,
+            )
+
+        encrypted_name = encrypt_value(name)
+        profile = create_profile(encrypted_name, nickname, password)
+        if not profile:
+            return render_template(
+                "error.html",
+                error_message="Unable to create account at this time.",
+                url=url_for("signup"),
+                submit_again="Try Again",
+            )
+
+        login_user(nickname)
+        nickname = decrypt(nickname)
+        return render_template("signup/welcome.html", username=nickname)
+
     csv_path = LOGIN_CSV
 
     # verifies if account already exists
@@ -592,12 +1027,13 @@ def signup_result():
                 nickname = decrypt(nickname)
                 return render_template(
                     "signup/account_exists.html",
-                    nickname=nickname
+                    nickname=nickname,
                 )
     # write to login.csv the new account
+    encrypted_name = encrypt_value(name)
     with open(csv_path, "a", newline="", encoding="utf-8") as csv_file:
         data = csv.writer(csv_file, delimiter=",")
-        data.writerow([name, nickname, password])
+        data.writerow([encrypted_name, nickname, password])
 
     # new accounts are logged in automatically
     login_user(nickname)
@@ -702,20 +1138,30 @@ def password_result():
         username = encrypt(request.form.get("nickname"))
         name = request.form.get("name")
 
-        with open(
-            LOGIN_CSV, mode="r", newline="", encoding="utf-8"
-        ) as csv_file:
-            reader = csv.DictReader(csv_file)
-            for row in reader:
-                if (
-                    row["nickname"].lower() == username.lower()
-                    and row["name"].lower() == name.lower()
-                ):
-                    password = row["password"]
-                    return render_template(
-                        "signup/password_result.html",
-                        password=decrypt(password)
-                    )
+        if supabase_enabled():
+            profile = get_profile_by_nickname(username)
+            if profile and profile.get("name", "").lower() == name.lower():
+                password = profile.get("password")
+                return render_template(
+                    "signup/password_result.html",
+                    password=decrypt(password),
+                )
+        else:
+            with open(
+                LOGIN_CSV, mode="r", newline="", encoding="utf-8"
+            ) as csv_file:
+                reader = csv.DictReader(csv_file)
+                for row in reader:
+                    stored_name = decrypt_value(row["name"])
+                    if (
+                        row["nickname"].lower() == username.lower()
+                        and stored_name.lower() == name.lower()
+                    ):
+                        password = row["password"]
+                        return render_template(
+                            "signup/password_result.html",
+                            password=decrypt(password),
+                        )
 
         error_message = "Your account does not exist."
         return render_template(
@@ -739,55 +1185,51 @@ def password_result():
 def remove_last_score():
     # button to remove LATEST r-score
     user_name = encrypt(request.form.get("username").strip())
-    fieldnames = []
-    user_rows = []
-    # gets all the the current data from scores.csv
-    with open(SCORES_CSV, mode="r",
-              newline="", encoding="utf-8") as csv_file:
-        reader = csv.DictReader(csv_file, delimiter=",")
-        fieldnames = reader.fieldnames
-        rows = list(reader)
-    # appends all specific r-score rows of the user from the main list 'rows'
-    # to user_rows
-    if rows:
-        for row in rows:
-            if row["nickname"].lower() == user_name.lower():
-                user_rows.append(row)
+    if supabase_enabled():
+        profile_id = get_profile_id_by_nickname(user_name)
+        delete_last_score(profile_id, user_name)
+        rows = get_scores_for_profile(profile_id, user_name)
+    else:
+        fieldnames = []
+        user_rows = []
+        # gets all the the current data from scores.csv
+        with open(SCORES_CSV, mode="r",
+                  newline="", encoding="utf-8") as csv_file:
+            reader = csv.DictReader(csv_file, delimiter=",")
+            fieldnames = reader.fieldnames
+            rows = list(reader)
+        # appends all specific r-score rows of the user from the main list 'rows'
+        # to user_rows
+        if rows:
+            user_row_indices = []
+            for i, row in enumerate(rows):
+                if row["nickname"].lower() == user_name.lower():
+                    user_rows.append(row)
+                    user_row_indices.append(i)
 
-        if user_rows:
-            try:
-                # finding the last submitted r-score in user_rows from that
-                # specific user
-                item_remove = user_rows[-1]
-                # removing that specific last score from the main list 'rows'
-                rows.remove(item_remove)
-            except ValueError:
-                pass
-    # writing the updated list into the a new csv file
-    with open(SCORES_CSV, mode="w",
-              newline="", encoding="utf-8") as csv_file:
-        writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(rows)
+            if user_row_indices:
+                # removing the last submitted r-score from the main list 'rows'
+                # using the index to ensure we remove the correct item
+                last_index = user_row_indices[-1]
+                rows.pop(last_index)
+        # writing the updated list into the a new csv file
+        with open(SCORES_CSV, mode="w",
+                  newline="", encoding="utf-8") as csv_file:
+            writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
+            writer.writeheader()
+            writer.writerows(rows)
+
     # converting it to values to be displayed to the user
     item_row, found_user, global_list = values_to_list(rows,
                                                        user_name,
                                                        )
-    if not found_user:
-        error_message = "You do not have any calculated R-Score!"
-        return render_template(
-            "error.html",
-            error_message=error_message,
-            url=url_for("r_score"),
-            submit_again="Calculate your R-Score",
-        )
-
+    
     if global_list:
         global_score = globalScore(global_list)
     else:
         global_score = "0"
 
-    display_message = "Updated!"
+    display_message = "Score removed successfully!"
     user_name = decrypt(user_name)
     return render_template(
         "r_score/result.html",
