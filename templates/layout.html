@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         {% block title %}{% endblock %}
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@exampledev/new.css@1/new.min.css">
-        <link rel="stylesheet" href="https://newcss.net/theme/night.css">
+        <link id="theme-link" rel="stylesheet" href="https://newcss.net/theme/light.css">
         <link href="../static/style.css" rel="stylesheet" type="text/css">
         <link rel="icon" type="image/x-icon" href="../static/favicon.ico">
         {% block scripts %}{% endblock %}
@@ -16,7 +16,7 @@
         </h1>
         <nav>
             <ul>
-                <li><a href="{{ url_for('admissions') }}">Admission Probability Calculator</a></li>
+                <li><a href="{{ url_for('admissions') }}">Admission Probability</a></li>
                 <li><a href="{{ url_for('future') }}">Plan your future</a></li>
                 <li><a href="{{ url_for('r_score') }}">Calculate your R-Score</a></li>
                 {% if session.get('display_name') %}
@@ -25,6 +25,11 @@
                 {% else %}
                 <li><a href="{{ url_for('signup') }}">Sign up</a></li>
                 {% endif %}
+                <li>
+                    <a href="#" id="theme-toggle" role="button" aria-label="Toggle Theme">
+                        Light Mode
+                    </a>
+                </li>
             </ul>
         </nav>
     </header>
