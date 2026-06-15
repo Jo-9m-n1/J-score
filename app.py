@@ -598,193 +598,293 @@ def result_ad():
 @app.route("/result", methods=["POST"])
 def result():
     # the r-score calculator and writing to csv file
-    try:
-        re_take = request.form.get("re_take")
-        subject = request.form.get("subject").strip()
-        grade = float(request.form.get("grade"))
-        class_grade = float(request.form.get("class_grade"))
-        std = float(request.form.get("class_std"))
-        class_high_grade = float(request.form.get("class_high_grade"))
-        subject_credit = float(request.form.get("credits"))
-        class_type = request.form.get("science")
-        # if the user is already logged in we reuse their session instead of
-        # making them type their username and password again
-        logged_in_user = session.get("user")
-        if logged_in_user:
-            nickname = logged_in_user
-            password = None
-        else:
-            nickname = encrypt(request.form.get("nickname").strip())
-            password = encrypt(request.form.get("password"))
+    form_type = request.form.get('form_type')
 
-        if std == 0:
-            error_message = (
-                "the standard deviation can not be 0"
-            )
-            return render_template(
-                "error.html",
-                error_message=error_message,
-                url=url_for("r_score"),
-                submit_again="Submit Again",
-            )
-
-        if class_type == "No":
-            IDGZ = 1.19
-        elif class_type == "Yes":
-            IDGZ = 0.75
-        else:
-            error_message = (
-                "You didn't answer the question: "
-                "Is this a science course? "
-                "Please try again."
-            )
-            return render_template(
-                "error.html",
-                error_message=error_message,
-                url=url_for("r_score"),
-                submit_again="Submit Again",
-            )
-
-        ISGZ = (class_high_grade - 73.64) / 14.12
-        r_score = round((
-            ((grade - class_grade + 0.45) / std) * IDGZ + ISGZ + 5
-        ) * 5, 2)
-        # verifies if username exists in login.csv / Supabase (skipped when
-        # already authenticated through the session)
-        username = None
-        profile = None
-        if logged_in_user:
-            username = nickname
-            if supabase_enabled():
-                profile = get_profile_by_nickname(nickname)
-        elif supabase_enabled():
-            profile = verify_profile(nickname, password)
-            if profile:
-                username = nickname
-        else:
-            with open(LOGIN_CSV, mode="r", newline="") as csv_file:
-                login = csv.DictReader(csv_file, delimiter=",")
-                for row in login:
-                    if (
-                        row["nickname"].lower() == nickname.lower()
-                        and row["password"] == password
-                    ):
-                        username = nickname
-                        break
-
-        # will return their r-score but it'll not be saved into the
-        # scores.csv file
-        if username is None:
-            return render_template(
-                "r_score/result_no_username.html",
-                subject=subject,
-                r_score=r_score,
-            )
-
-        # credentials are valid, so remember the user for next time
-        login_user(username)
-
-        # this block of code checks whether a user is trying to submit a
-        # r-score for a subject they already submitted before
-        if re_take != "yes":
-            foundDuplicate = False
-            if supabase_enabled() and profile:
-                foundDuplicate = score_exists_for_profile(
-                    profile.get("id"), subject, nickname
-                )
+    if form_type == 'calculated':
+        try:
+            re_take = request.form.get("re_take")
+            subject = request.form.get("subject").strip()
+            grade = float(request.form.get("grade"))
+            class_grade = float(request.form.get("class_grade"))
+            std = float(request.form.get("class_std"))
+            class_high_grade = float(request.form.get("class_high_grade"))
+            subject_credit = float(request.form.get("credits"))
+            class_type = request.form.get("science")
+            # if the user is already logged in we reuse their session instead of
+            # making them type their username and password again
+            logged_in_user = session.get("user")
+            if logged_in_user:
+                nickname = logged_in_user
+                password = None
             else:
-                with open(SCORES_CSV, mode="r", newline="") as csv_file:
-                    check_subject = csv.DictReader(csv_file)
-                    for row in check_subject:
+                nickname = encrypt(request.form.get("nickname").strip())
+                password = encrypt(request.form.get("password"))
+
+            if std == 0:
+                error_message = (
+                    "the standard deviation can not be 0"
+                )
+                return render_template(
+                    "error.html",
+                    error_message=error_message,
+                    url=url_for("r_score"),
+                    submit_again="Submit Again",
+                )
+
+            if class_type == "No":
+                IDGZ = 1.19
+            elif class_type == "Yes":
+                IDGZ = 0.75
+            else:
+                error_message = (
+                    "You didn't answer the question: "
+                    "Is this a science course? "
+                    "Please try again."
+                )
+                return render_template(
+                    "error.html",
+                    error_message=error_message,
+                    url=url_for("r_score"),
+                    submit_again="Submit Again",
+                )
+
+            ISGZ = (class_high_grade - 73.64) / 14.12
+            r_score = round((
+                ((grade - class_grade + 0.45) / std) * IDGZ + ISGZ + 5
+            ) * 5, 2)
+            # verifies if username exists in login.csv / Supabase (skipped when
+            # already authenticated through the session)
+            username = None
+            profile = None
+            if logged_in_user:
+                username = nickname
+                if supabase_enabled():
+                    profile = get_profile_by_nickname(nickname)
+            elif supabase_enabled():
+                profile = verify_profile(nickname, password)
+                if profile:
+                    username = nickname
+            else:
+                with open(LOGIN_CSV, mode="r", newline="") as csv_file:
+                    login = csv.DictReader(csv_file, delimiter=",")
+                    for row in login:
                         if (
                             row["nickname"].lower() == nickname.lower()
-                            and row["subject"].lower() == subject.lower()
+                            and row["password"] == password
                         ):
-                            foundDuplicate = True
+                            username = nickname
                             break
 
-            if foundDuplicate:
-                password = decrypt(password) if password else ""
-                nickname = decrypt(nickname)
-                score_data = {
-                    "nickname": nickname,
-                    "subject": subject,
-                    "grade": grade,
-                    "class_grade": class_grade,
-                    "class_std": std,
-                    "class_high_grade": class_high_grade,
-                    "credits": subject_credit,
-                    "science": class_type,
-                    "r_score": r_score,
-                    "password": password,
-                }
+            # will return their r-score but it'll not be saved into the
+            # scores.csv file
+            if username is None:
                 return render_template(
-                    "r_score/subject_exist.html", score_data=score_data
+                    "r_score/result_no_username.html",
+                    subject=subject,
+                    r_score=r_score,
                 )
 
-        if supabase_enabled() and profile:
-            insert_score(
-                profile.get("id"),
-                nickname,
-                subject,
-                grade,
-                class_grade,
-                std,
-                class_high_grade,
-                subject_credit,
-                class_type,
-                r_score,
+            # credentials are valid, so remember the user for next time
+            login_user(username)
+
+            # this block of code checks whether a user is trying to submit a
+            # r-score for a subject they already submitted before
+            if re_take != "yes":
+                foundDuplicate = False
+                if supabase_enabled() and profile:
+                    foundDuplicate = score_exists_for_profile(
+                        profile.get("id"), subject, nickname
+                    )
+                else:
+                    with open(SCORES_CSV, mode="r", newline="") as csv_file:
+                        check_subject = csv.DictReader(csv_file)
+                        for row in check_subject:
+                            if (
+                                row["nickname"].lower() == nickname.lower()
+                                and row["subject"].lower() == subject.lower()
+                            ):
+                                foundDuplicate = True
+                                break
+
+                if foundDuplicate:
+                    password = decrypt(password) if password else ""
+                    nickname = decrypt(nickname)
+                    score_data = {
+                        "nickname": nickname,
+                        "subject": subject,
+                        "grade": grade,
+                        "class_grade": class_grade,
+                        "class_std": std,
+                        "class_high_grade": class_high_grade,
+                        "credits": subject_credit,
+                        "science": class_type,
+                        "r_score": r_score,
+                        "password": password,
+                    }
+                    return render_template(
+                        "r_score/subject_exist.html", score_data=score_data
+                    )
+
+            if supabase_enabled() and profile:
+                insert_score(
+                    profile.get("id"),
+                    nickname,
+                    subject,
+                    grade,
+                    class_grade,
+                    std,
+                    class_high_grade,
+                    subject_credit,
+                    class_type,
+                    r_score,
+                )
+                rows = get_scores_for_profile(profile.get("id"), username)
+                rows, found_user, global_list = values_to_list(rows, username)
+            else:
+                with open(
+                    SCORES_CSV, mode="a", newline="", encoding="utf-8"
+                ) as csv_file:
+                    writer = csv.writer(csv_file)
+                    writer.writerow(
+                        [
+                            nickname,
+                            subject,
+                            encrypt_value(grade),
+                            encrypt_value(class_grade),
+                            encrypt_value(std),
+                            encrypt_value(class_high_grade),
+                            encrypt_value(subject_credit),
+                            class_type,
+                            encrypt_value(r_score),
+                        ]
+                    )
+                with open(
+                    SCORES_CSV, mode="r", newline="", encoding="utf-8"
+                ) as csv_file:
+                    reader = csv.DictReader(csv_file)
+                    rows, found_user, global_list = values_to_list(
+                        reader, username
+                    )
+
+            global_score = globalScore(global_list)
+            display_message = (
+                f"Your latest calculated r-score for " f"{subject} is {r_score}"
             )
-            rows = get_scores_for_profile(profile.get("id"), username)
-            rows, found_user, global_list = values_to_list(rows, username)
-        else:
-            with open(
-                SCORES_CSV, mode="a", newline="", encoding="utf-8"
-            ) as csv_file:
-                writer = csv.writer(csv_file)
-                writer.writerow(
-                    [
-                        nickname,
-                        subject,
-                        encrypt_value(grade),
-                        encrypt_value(class_grade),
-                        encrypt_value(std),
-                        encrypt_value(class_high_grade),
-                        encrypt_value(subject_credit),
-                        class_type,
-                        encrypt_value(r_score),
-                    ]
+            nickname = decrypt(nickname)
+            return render_template(
+                "r_score/result.html",
+                display_message=display_message,
+                past_score=rows,
+                global_score=global_score,
+                username=nickname,
+            )
+
+        except (ValueError, TypeError, AttributeError):
+            return render_template(
+                "error.html",
+                error_message="You have missing values! Please try again.",
+                url=url_for("r_score"),
+                submit_again="Submit Again",
+            )
+    
+    elif form_type == 'manual':
+        try:
+            re_take = request.form.get("re_take")
+            subject = request.form.get("subject_manual").strip()
+            r_score = float(request.form.get("rscore_manual"))
+            subject_credit = float(request.form.get("credits_manual"))
+            
+            # Auth logic
+            logged_in_user = session.get("user")
+            if logged_in_user:
+                nickname = logged_in_user
+                password = None
+            else:
+                nickname = encrypt(request.form.get("nickname").strip())
+                password = encrypt(request.form.get("password"))
+
+            username = None
+            profile = None
+            if logged_in_user:
+                username = nickname
+                if supabase_enabled():
+                    profile = get_profile_by_nickname(nickname)
+            elif supabase_enabled():
+                profile = verify_profile(nickname, password)
+                if profile:
+                    username = nickname
+            
+            login_user(username)
+
+            # Duplicate check
+            if re_take != "yes":
+                foundDuplicate = False
+                if supabase_enabled() and profile:
+                    foundDuplicate = score_exists_for_profile(profile.get("id"), subject, nickname)
+                else:
+                    with open(SCORES_CSV, mode="r", newline="") as csv_file:
+                        check_subject = csv.DictReader(csv_file)
+                        for row in check_subject:
+                            if (row["nickname"].lower() == nickname.lower() and 
+                                row["subject"].lower() == subject.lower()):
+                                foundDuplicate = True
+                                break
+
+                if foundDuplicate:
+                    password = decrypt(password) if password else ""
+                    nickname = decrypt(nickname)
+                    score_data = {
+                        "nickname": nickname,
+                        "subject": subject,
+                        "r_score": r_score,
+                        "password": password,
+                    }
+                    return render_template("r_score/subject_exist.html", score_data=score_data)
+
+            # Insert/Write data
+            if supabase_enabled() and profile:
+                insert_score(
+                    profile.get("id"), nickname, subject, 0, 0, 0, 0, subject_credit, "No", r_score
                 )
-            with open(
-                SCORES_CSV, mode="r", newline="", encoding="utf-8"
-            ) as csv_file:
-                reader = csv.DictReader(csv_file)
-                rows, found_user, global_list = values_to_list(
-                    reader, username
-                )
+                rows = get_scores_for_profile(profile.get("id"), username)
+                rows, found_user, global_list = values_to_list(rows, username)
+            else:
+                with open(SCORES_CSV, mode="a", newline="", encoding="utf-8") as csv_file:
+                    writer = csv.writer(csv_file)
+                    writer.writerow([
+                        nickname, 
+                        subject, 
+                        encrypt_value(0), 
+                        encrypt_value(0), 
+                        encrypt_value(0), 
+                        encrypt_value(0), 
+                        encrypt_value(subject_credit), 
+                        "No", 
+                        encrypt_value(r_score)
+                    ])
+                
+                with open(SCORES_CSV, mode="r", newline="", encoding="utf-8") as csv_file:
+                    reader = csv.DictReader(csv_file)
+                    rows, found_user, global_list = values_to_list(reader, username)
 
-        global_score = globalScore(global_list)
-        display_message = (
-            f"Your latest calculated r-score for " f"{subject} is {r_score}"
-        )
-        nickname = decrypt(nickname)
-        return render_template(
-            "r_score/result.html",
-            display_message=display_message,
-            past_score=rows,
-            global_score=global_score,
-            username=nickname,
-        )
+            global_score = globalScore(global_list)
+            nickname = decrypt(nickname)
+            return render_template(
+                "r_score/result.html",
+                past_score=rows,
+                global_score=global_score,
+                username=nickname,
+            )
 
-    except (ValueError, TypeError, AttributeError):
-        return render_template(
-            "error.html",
-            error_message="You have missing values! Please try again.",
-            url=url_for("r_score"),
-            submit_again="Submit Again",
-        )
-
-
+        except Exception as e:
+            print(f"DEBUG: Manual submission failed: {e}")
+            return render_template(
+                "error.html",
+                error_message="A system error occurred. Please ensure all fields are filled.",
+                url=url_for("r_score"),
+                submit_again="Submit Again",
+            )
+        
 @app.route("/check_r_score")
 def check_r_score():
     return render_template("/check_r_score/check_r_score.html")
@@ -878,96 +978,6 @@ def login():
         url=url_for("signup"),
         submit_again="Try Again",
     )
-
-
-@app.route("/your_r_score", methods=["POST"])
-def your_r_score():
-    # skips submitting an r-score to see the r-score table with the overall
-    # r-score from username and password
-    try:
-        nickname = encrypt(request.form.get("nickname"))
-        password = encrypt(request.form.get("password"))
-        username = None
-        profile = None
-
-        if supabase_enabled():
-            profile = verify_profile(nickname, password)
-            if profile:
-                username = nickname
-        else:
-            # verifies username AND password
-            with open(
-                LOGIN_CSV, mode="r", newline="", encoding="utf-8"
-            ) as csv_file:
-                login = csv.DictReader(csv_file, delimiter=",")
-                for row in login:
-                    if (
-                        row["nickname"].lower() == nickname.lower()
-                        and row["password"] == password
-                    ):
-                        username = nickname
-                        break
-
-            if not username:
-                error_message = (
-                    "Your account doesn't exist, or "
-                    "your login information is incorrect. Go to the "
-                    "Sign Up page to create an account."
-                )
-                return render_template(
-                    "error.html",
-                    error_message=error_message,
-                    url=url_for("check_r_score"),
-                    submit_again="Try Again",
-                )
-
-        # credentials are valid, so remember the user for next time
-        login_user(username)
-
-        if supabase_enabled() and profile:
-            rows = get_scores_for_profile(profile.get("id"), username)
-            rows, found_user, global_list = values_to_list(
-                rows, username
-            )
-        else:
-            # goes to the helper function values_to_list to return a list
-            # of data to show to the user in a table
-            with open(
-                SCORES_CSV, mode="r", newline="", encoding="utf-8"
-            ) as csv_file:
-                reader = csv.DictReader(csv_file, delimiter=",")
-                rows, found_user, global_list = values_to_list(
-                    reader, username
-                )
-
-        if not found_user:
-            error_message = "You do not have any calculated R-Score!"
-            return render_template(
-                "error.html",
-                error_message=error_message,
-                url=url_for("r_score"),
-                submit_again="Calculate your R-Score",
-            )
-
-        global_score = globalScore(global_list)
-
-        display_message = "These are your R-scores"
-        nickname = decrypt(nickname)
-        return render_template(
-            "r_score/result.html",
-            display_message=display_message,
-            past_score=rows,
-            global_score=global_score,
-            username=nickname,
-        )
-
-    except (ValueError, TypeError, AttributeError, ZeroDivisionError):
-        return render_template(
-            "error.html",
-            error_message="Something went wrong. " "Please try again.",
-            url=url_for("check_r_score"),
-            submit_again="Try Again",
-        )
 
 
 @app.route("/signup")

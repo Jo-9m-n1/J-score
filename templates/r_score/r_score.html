@@ -79,6 +79,41 @@
                 </p>
         </section>
         <input type="hidden" name="re_take" value="no">
+        <input type="hidden" name="form_type" value="calculated">
+        <button type="submit">Submit</button>
+    </form>
+    <form action="result" method="post">
+        <h1>Add a R-score manually:</h1>
+        <p>If you already know your R-score, you can add it manually.</p>
+        <section class="subject">
+            <h2>What's the name of the subject?</h2>
+                <p>
+                    <label for="subject_manual">Answer:</label>
+                    <input type="text" id="subject_manual" name="subject_manual"  placeholder="Discrete Math" required>
+                </p>
+        </section>
+        <section class="rscore_manual">
+            <h2>What is your R-score?</h2>
+                <p>
+                    <label for="rscore_manual">Answer:</label>
+                    <input type="number" id="rscore_manual" name="rscore_manual" min="0" step="0.1" max="100" placeholder="30" required>
+                </p>
+        </section>
+        <section class="credits_manual">
+            <h2>How many credits was that class worth?</h2>
+                <p>
+                    <label for="credits_manual">Answer:</label>
+                    <select id="credits_manual" name="credits_manual">
+                        <option value="">Select credits</option>
+                        <option value="1.00">1.00 credit (2h class/week)</option>
+                        <option value="2.00">2.00 credits (3h class/week)</option>
+                        <option value="2.33">2.33 credits (4h class/week)</option>
+                        <option value="2.66">2.66 credits (5h class/week)</option>
+                    </select>
+                </p>
+        </section>
+        <input type="hidden" name="re_take" value="no">
+        <input type="hidden" name="form_type" value="manual">
         <button type="submit">Submit</button>
     </form>
 </main>
