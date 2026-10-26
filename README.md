@@ -1,9 +1,10 @@
 
 <img src="https://readme-typing-svg.herokuapp.com?font=Roboto+Bold&size=35&pause=1000&color=87CEEB&width=500&height=70&lines=J-score*" alt="J-score*"/>
 
-![Python](https://img.shields.io/badge/Python-yellow)
+![Python](https://img.shields.io/badge/Python-blue) ![JavaScript](https://img.shields.io/badge/JavaScript-yellow)
 
-[**J-score**](https://j-score.vercel.app/) is a dedicated platform designed to **help CÉGEP students** navigate and plan their academic futures. By leveraging **mathematical logic rooted in probability and statistics** (201-SN1-RE), it provides students with data-driven insights into their academic trajectory. 
+
+[**J-score***](https://j-score.vercel.app/) is a dedicated platform designed to **help CÉGEP students** navigate and plan their academic futures. By leveraging **mathematical logic rooted in probability and statistics** (201-SN1-RE), it provides students with data-driven insights into their academic trajectory. 
 
 ## Creators
 - [Jongmin Lee](https://www.linkedin.com/in/jo-9m-n1/)
