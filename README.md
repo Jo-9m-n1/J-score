@@ -11,12 +11,15 @@
 
 <img src="https://user-images.githubusercontent.com/74038190/216654116-d0e8d227-7977-4edc-8d36-63461bda9503.gif" width="90">
 
+## Why J-score*?
+CÉGEP is a post-secondary system exclusive to the province of Québec, which often **leaves students with limited planning resources**. Because the R-score (Cote R) is calculated centrally by the Ministère de l'Enseignement supérieur (MES) only after semesters conclude, students face significant delays in knowing where they stand. This prevents students from planning their future university applications. J-score* helps by giving students the ability to project and simulate their R-score before the official grades are finalized.
+
 ## Key Features
 
-- **R-score calculation**: Estimate your R-Score using weighted averages and course-specific data to gauge academic performance. 
+- **R-score calculation**: Estimate your R-score using weighted averages and course-specific data to gauge academic performance. 
 - **Admission probability calculation**: Evaluate your chances of acceptance into competitive university programs based on historical the cut-off and your R-score.
-- **Target R-score Projection**: Determine the specific R-Score required in future semesters to reach your academic goals.
-- **Probabilistic Learning Modules**: Educational tools that demonstrate the mathematical logic of probability and statistics used in the R-Score system.
+- **Target R-score Projection**: Determine the specific R-score required in future semesters to reach your academic goals.
+- **Probabilistic Learning Modules**: Educational tools that demonstrate the mathematical logic of probability and statistics used in the R-score system.
 
 ## Tech Stack
 
